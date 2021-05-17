@@ -41,9 +41,13 @@ class Swiper {
         }
         this.initialX = currentX;
       } else {
-        // swiped right
-        //this.initialX = currentX;
+        //stop dragging if this is a right swipe
+        return;
       }
+    }
+    else{
+      //stop dragging if this is an up or down swipe
+      return;
     }
 
     e.preventDefault();
