@@ -10,7 +10,7 @@ body{margin: 0px; overflow: hidden; font-family: 'Work Sans', sans-serif;}
         .header img{align-self: center;}
         .backBtn{position: absolute; width: 45px;}
         .header .savedNavIcon{position: absolute; left:5px;}
-      .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: auto;}
+      .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll;}
         .pageContent .pageSection{margin: 13px 10px 13px 10px;}
           .sectionHeader{font-size: 1.5em; margin-bottom: 15px;}
 
