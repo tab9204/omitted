@@ -128,7 +128,7 @@ function cleanDatabase(){
   //array containing promises for all db actions taken
   var dbActions = [];
   //return a promise that resolves once all db actions have completed
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     //get all reminders
     database.allReminders().then((all)=>{
       for(var i = 0; i < all.rows.length; i++){//loop through all returned reminders

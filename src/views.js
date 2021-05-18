@@ -14,17 +14,46 @@ var header = {
   }
 }
 
+//reminder component
+var reminder = {
+  view: (vnode) => {
+    return m(".reminder",{
+      id:vnode.attrs.reminder._id,//attach the id of the reminder to the id html attriute
+      //add touch events
+      ontouchstart:(e)=>{reminderSwipe.startTouch(e)},
+      ontouchmove:(e)=>{reminderSwipe.moveTouch(e)},
+      ontouchend:(e)=>{reminderSwipe.endTouch(e)},
+      //animation end event for when the slide out animation finishes
+      onanimationend: (e)=>{
+        if(e.target.classList.contains("slideOut")){
+          e.target.classList.add("hidden");
+        }
+      }
+    },[
+      m(".leftSide",[
+        m(".weekday",vnode.attrs.reminder.weekDay)
+      ]),
+      m(".rightSide",[
+        m(".title",vnode.attrs.reminder.title),
+        m(".date",vnode.attrs.reminder.date),
+        m(".time",vnode.attrs.reminder.time),
+        m(".repeat",vnode.attrs.reminder.repeat),
+      ])
+    ])
+  }
+}
+
 //home screen
 var homeScreen = {
-  oninit: ()=>{
-    //clean up the db
-    cleanDatabase().then((result) => {
+  oninit: async () => {
+    try{
+      var result = await cleanDatabase();
       console.log(result);
-      //once the db is cleaned sort the remaining reminders
       sortedReminders.sort();
-    }).catch((error) =>{
-      console.log(error);
-    });
+    }
+    catch (error){
+      alert(error);
+    }
   },
   view: (vnode)=>{
     return m("homeScreen.contentView",[
@@ -33,60 +62,16 @@ var homeScreen = {
         m(".pageSection", [//todays reminders section
           m(".sectionHeader","Today's reminders"),
           m(".reminderList",[
-            sortedReminders.today.map((reminder,i) => {//loop through and display reminders sorted for today
-              return m(".reminder",{
-                id:reminder._id,//attach the id of the reminder to the id html attriute
-                //add touch events
-                ontouchstart:(e)=>{reminderSwipe.startTouch(e)},
-                ontouchmove:(e)=>{reminderSwipe.moveTouch(e)},
-                ontouchend:(e)=>{reminderSwipe.endTouch(e)},
-                //animation end event for when the slide out animation finishes
-                onanimationend: (e)=>{
-                  if(e.target.classList.contains("slideOut")){
-                    e.target.classList.add("hidden");
-                  }
-                }
-              },[
-                m(".leftSide",[
-                  m(".weekday",reminder.weekDay)
-                ]),
-                m(".rightSide",[
-                  m(".title",reminder.title),
-                  m(".date",reminder.date),
-                  m(".time",reminder.time),
-                  m(".repeat",reminder.repeat),
-                ])
-              ])
+            sortedReminders.today.map((current) => {//loop through and display reminders sorted for today
+              return m(reminder, {reminder: current})
             })
           ])
         ]),
         m(".pageSection", [//upcoming reminders section
           m(".sectionHeader","Upcoming reminders"),
           m(".reminderList",[
-            sortedReminders.upcoming.map((reminder,i) => {//loop through and dispay reminders sorted for upcoming
-              return m(".reminder",{
-                id:reminder._id,//attach the id of the reminder to the id html attriute
-                //add touch events
-                ontouchstart:(e)=>{reminderSwipe.startTouch(e)},
-                ontouchmove:(e)=>{reminderSwipe.moveTouch(e)},
-                ontouchend:(e)=>{reminderSwipe.endTouch(e)},
-                //animation end event for when the slide out animation finishes
-                onanimationend: (e)=>{
-                  if(e.target.classList.contains("slideOut")){
-                    e.target.classList.add("hidden");
-                  }
-                }
-              },[
-                m(".leftSide",[
-                  m(".weekday",reminder.weekDay)
-                ]),
-                m(".rightSide",[
-                  m(".title",reminder.title),
-                  m(".date",reminder.date),
-                  m(".time",reminder.time),
-                  m(".repeat",reminder.repeat),
-                ])
-              ])
+            sortedReminders.upcoming.map((current) => {//loop through and dispay reminders sorted for upcoming
+              return m(reminder, {reminder: current})
             })
           ])
         ])
@@ -100,6 +85,7 @@ var addScreen = {//add new reminder screen
     //focus the title input on page load
     document.querySelectorAll(".titleInput")[0].focus();
 
+    //initalize the date and time pickers
     flatpickr("#dateOpen",{
       defaultDate: moment().format("YYYY-MM-DD")
     });
@@ -117,18 +103,19 @@ var addScreen = {//add new reminder screen
         m(".pageSection", [//navigation section
           m(".navigation",[
             m("img.exit",{src:"./assets/x.png", onclick: ()=>{  window.location = "#!/home";}}),
-            m("img.add",{src:"./assets/plus.png", onclick: ()=> {
+            m("img.add",{src:"./assets/plus.png", onclick: async () => {
               try{
                 //get the data needed for a reminder
                 var newReminder = gatherReminderData();
                 //add the reminder to the db
-                database.addReminder(newReminder).then((result) =>{
-                  console.log(result);
-                  window.location = "#!/home";
-                });
+                var result = await database.addReminder(newReminder);
+
+                console.log(result);
+
+                window.location = "#!/home";
               }
-              catch (e){//catch and alert any validation error
-                alert(e);
+              catch (error){
+                alert(error);
               }
             }})
           ])
