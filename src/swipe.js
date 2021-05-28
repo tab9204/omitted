@@ -33,9 +33,9 @@ class Swiper {
         }
         else{
           e.currentTarget.classList.add("slideOut");
-          this.onSwipe(e.currentTarget.id).then((result)=>{
-            console.log(result);
-          })
+          
+          this.onSwipe(e.currentTarget.id);
+
           this.initialX = null;
           this.initialY = null;
         }

@@ -34,7 +34,7 @@ var repeatButtons = {
 var sortedReminders = {
   today: [],
   upcoming:[],
-  sort: ()=>{
+  sort: async ()=>{
     //empty out the arrays
     sortedReminders.today = [];
     sortedReminders.upcoming = [];
@@ -43,28 +43,25 @@ var sortedReminders = {
     //the unix time that the current day ends at
     var endOfDay = moment().endOf("day").format("X");
     //get all the reminders
-    database.allReminders().then((all)=>{
-        //loop through all returned reminders
-        for(var i = 0; i < all.rows.length; i++){
-          //the timestamp of the current reminder
-          var reminderTime = all.rows[i].doc.timeStamp;
-          //the reminder timestamp is between now and the end of the current day
-          if(reminderTime >= currentTime && reminderTime <= endOfDay){
-            //add this reminder to todays reminders
-            sortedReminders.today.push(all.rows[i].doc);
-          }
-          //the reminder is sometime after the end of the current day
-          else if(reminderTime > endOfDay){
-            //add this reminder to upcoming reminders
-            sortedReminders.upcoming.push(all.rows[i].doc);
-          }
-        }
-        //sort the arrays based on timestamp in acending order
-        sortedReminders.upcoming.sort((a,b) => a.timeStamp - b.timeStamp);
-        sortedReminders.today.sort((a,b) => a.timeStamp - b.timeStamp);
-
-        m.redraw();
-    });
+    var all = await database.allReminders();
+    //loop through all returned reminders
+    for(var i = 0; i < all.rows.length; i++){
+      //the timestamp of the current reminder
+      var reminderTime = all.rows[i].doc.timeStamp;
+      //the reminder timestamp is between now and the end of the current day
+      if(reminderTime >= currentTime && reminderTime <= endOfDay){
+        //add this reminder to todays reminders
+        sortedReminders.today.push(all.rows[i].doc);
+      }
+      //the reminder is sometime after the end of the current day
+      else if(reminderTime > endOfDay){
+        //add this reminder to upcoming reminders
+        sortedReminders.upcoming.push(all.rows[i].doc);
+      }
+    }
+    //sort the arrays based on timestamp in acending order
+    sortedReminders.upcoming.sort((a,b) => a.timeStamp - b.timeStamp);
+    sortedReminders.today.sort((a,b) => a.timeStamp - b.timeStamp);
   }
 }
 
@@ -122,54 +119,45 @@ function gatherReminderData(){
 //cleans and organizes the db by:
 //incrementing any reminders that have a repeat frequency
 //deleting old reminders that are no longer in use
-function cleanDatabase(){
+async function cleanDatabase(){
   //the unix time right now
   var currentTime = moment().format("X");
   //array containing promises for all db actions taken
   var dbActions = [];
-  //return a promise that resolves once all db actions have completed
-  return new Promise((resolve, reject) => {
-    //get all reminders
-    database.allReminders().then((all)=>{
-      for(var i = 0; i < all.rows.length; i++){//loop through all returned reminders
+  //all reminders in the db
+  var all = await database.allReminders();
 
-        var reminderTime = all.rows[i].doc.timeStamp;//timestamp on the reminder
-        var reminderRepeat =  all.rows[i].doc.repeat;//the repeat of the reminder
+  for(var i = 0; i < all.rows.length; i++){//loop through all returned reminders
 
-        //if the reminder has already happened but has a repeat requency
-        if(reminderTime <= currentTime && reminderRepeat !== "Never"){
-          var id = all.rows[i].doc._id;
-          //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
-          var newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
-          var newWeekDay = moment.unix(newTimestamp).format("ddd");
-          var newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
-          //all reminder data is the same except for the timestamp, date, and weekday
-          var reminder = {
-            title: all.rows[i].doc.title,
-            repeat: all.rows[i].doc.repeat,
-            allDay: all.rows[i].doc.allDay,
-            timeStamp: newTimestamp,
-            weekDay: newWeekDay,
-            date: newDate,
-            time: all.rows[i].doc.time
-          }
-          dbActions.push(database.updateReminder(id,reminder));
-        }
-        //otherwise if the reminder is in the past and does not repeat
-        else if(reminderTime <= currentTime && reminderRepeat == "Never"){
-          //delete the reminder from the db
-          dbActions.push(database.deleteReminder(all.rows[i].doc._id))
-        }
+    var reminderTime = all.rows[i].doc.timeStamp;//timestamp on the reminder
+    var reminderRepeat =  all.rows[i].doc.repeat;//the repeat of the reminder
+
+    //if the reminder has already happened but has a repeat requency
+    if(reminderTime <= currentTime && reminderRepeat !== "Never"){
+      var id = all.rows[i].doc._id;
+      //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
+      var newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
+      var newWeekDay = moment.unix(newTimestamp).format("ddd");
+      var newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
+      //all reminder data is the same except for the timestamp, date, and weekday
+      var reminder = {
+        title: all.rows[i].doc.title,
+        repeat: all.rows[i].doc.repeat,
+        allDay: all.rows[i].doc.allDay,
+        timeStamp: newTimestamp,
+        weekDay: newWeekDay,
+        date: newDate,
+        time: all.rows[i].doc.time
       }
-      //resolve the returned promise once all db actions are complete
-      Promise.all(dbActions).then((result) => {
-        resolve("All DB actions completed");
-      }).catch((error) =>{
-        //reject if there was an error with one of the db actions
-        reject(error);
-      });
-    });
-  });
+      await database.updateReminder(id,reminder);
+    }
+    //otherwise if the reminder is in the past and does not repeat
+    else if(reminderTime <= currentTime && reminderRepeat == "Never"){
+      //delete the reminder from the db
+      await database.deleteReminder(all.rows[i].doc._id);
+    }
+  }
+  console.log("database cleaned");
 }
 
 

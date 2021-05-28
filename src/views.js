@@ -1,14 +1,32 @@
 /*****app views****/
 import {repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData} from './data.js';
 import {database} from './database.js';
+import {registerWorker,requestPushPermissions,subscribeUser} from './push.js';
 
 //header component
 var header = {
   view: ()=>{
     return m(".header",[
       m("div", "Remind Me"),
-      m("img.add",{src:"./assets/plus.png", onclick: ()=> {
-          window.location = "#!/add";
+      m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
+        //disable this click event to prevent double clicks
+        e.currentTarget.style.pointerEvents = "none";
+
+        try{
+          //register service worker
+          var registration = await registerWorker();
+          //request permissions to use notifications
+          var permission = await requestPushPermissions();
+          //subscribe to push notifications
+          await subscribeUser(registration);
+
+        }
+        catch (error){
+          console.log(error);
+        }
+        window.location = "#!/add";
+          //enable the click event
+        //e.currentTarget.style.pointerEvents = "auto";
       }})
     ])
   }
@@ -47,12 +65,14 @@ var reminder = {
 var homeScreen = {
   oninit: async () => {
     try{
-      var result = await cleanDatabase();
-      console.log(result);
-      sortedReminders.sort();
+      //clean up the db before sorting the reminders
+      await cleanDatabase();
+      //sort the reminders in the db
+      await sortedReminders.sort();
+      m.redraw();
     }
     catch (error){
-      alert(error);
+      console.log(error);
     }
   },
   view: (vnode)=>{
@@ -108,9 +128,7 @@ var addScreen = {//add new reminder screen
                 //get the data needed for a reminder
                 var newReminder = gatherReminderData();
                 //add the reminder to the db
-                var result = await database.addReminder(newReminder);
-
-                console.log(result);
+                await database.addReminder(newReminder);
 
                 window.location = "#!/home";
               }

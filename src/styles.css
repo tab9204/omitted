@@ -1,109 +1,60 @@
+/*General styles*/
 body{margin: 0px; overflow: hidden; font-family: 'Work Sans', sans-serif;}
   .hidden{display:none !important;}
-  .btn{border: 1px solid #000; cursor: pointer; border-radius: 4px; padding: 7px;}
-  .centerText{text-align: center;}
-  canvas {width: 100%; height: 310px; position: relative;}
 
-  #appRoot{height: 100%; position: relative;}
-    .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0;}
-      .header{font-size: 2em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between;}
-        .header img{align-self: center;}
-        .backBtn{position: absolute; width: 45px;}
-        .header .savedNavIcon{position: absolute; left:5px;}
-      .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll;}
-        .pageContent .pageSection{margin: 13px 10px 13px 10px;}
-          .sectionHeader{font-size: 1.5em; margin-bottom: 15px;}
-
-        .lightboxContent{position: absolute; width: 300px; background:white; z-index: 2; overflow-y: auto; transform: translate(-50%, -50%); left: 50%; top: 50%;}
-        .lightboxBackground{position: absolute; height: 100%; width: 100%; background: rgba(0,0,0,0.2); z-index: 1; left: 0; top: 0;}
-        .lightboxHeader{text-align: center; font-size: 1.5em; border-bottom: 1px solid black; padding: 5px;}
-          .lightboxClose{position: relative; text-align: right; font-size: 1.5em; margin: 5px 10px 5px 5px;}
-
-        input{border:none;}
-        input:focus{outline: none;}
-
-        .titleInput{font-size: 1.3em;}
-
-        .dateInput{display: flex; justify-content: space-between; font-size: 1em;}
-        .flatpickr-input{background: none; font-family: 'Work Sans', sans-serif;}
-
-        .repeatListTitle{font-size: 1.3em;}
-        .repeatList {display: flex; flex-direction: row; flex-wrap: wrap; position: relative; transform: translateX(-50%); left: 50%; width: 300px;}
-        .repeatItem {width: 76px; height: 34px; margin: 4px; text-align: center; line-height: 34px;}
-        .btn {border: 1px solid #000; cursor: pointer; border-radius: 4px; padding: 7px;}
-        .selected{background: #4D77BE; color: white;}
-
-      .navigation{display: flex; justify-content: space-between;}
-        .exit,.add{width: 28px; height: 28px;}
-
-      .allDay{display: flex; justify-content: space-between; font-size:1.3em;}
+#appRoot{height: 100%; position: relative;}
+  .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0;}
+    .header{font-size: 2em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between;}
+      .header img{align-self: center;}
+      .backBtn{position: absolute; width: 45px;}
+      .header .savedNavIcon{position: absolute; left:5px;}
+    .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll;}
+      .pageContent .pageSection{margin: 13px 10px 13px 10px;}
+        .sectionHeader{font-size: 1.5em; margin-bottom: 15px;}
 
 
-      homeScreen .pageContent{justify-content: start;}
-      .reminderList{display: flex; flex-direction: column;}
-        .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 10px 0 10px 0; position: relative; left: 0px;}
-          .leftSide{ display: flex; width: 15%; border-right: 1px solid;}
-            .weekDay{align-self: center; margin: 0 5px 0 5px;}
-          .rightSide{display: flex; width: 85%; justify-content: space-between; flex-wrap: wrap; margin: 0 5px 0 5px;}
-            .title{width: 100%; font-size: 1.3em; margin-bottom: 5px;}
+/*Add screen styles */
+input{border:none;}
+input:focus{outline: none;}
 
-/*slider*/
+.titleInput{font-size: 1.3em;}
+
+.dateInput{display: flex; justify-content: space-between;}
+.flatpickr-input{background: none; font-family: 'Work Sans', sans-serif; font-size: 1em; width: 150px;}
+
+.repeatListTitle{font-size: 1.3em;}
+.repeatList {display: flex; flex-direction: row; flex-wrap: wrap; position: relative; transform: translateX(-50%); left: 50%; width: 300px;}
+  .repeatItem {width: 76px; height: 34px; margin: 4px; text-align: center; line-height: 34px;}
+  .btn {border: 1px solid #000; cursor: pointer; border-radius: 4px; padding: 7px;}
+  .selected{background: #4D77BE; color: white;}
+
+.navigation{display: flex; justify-content: space-between;}
+  .exit,.add{width: 28px; height: 28px;}
+
+.allDay{display: flex; justify-content: space-between; font-size:1.3em;}
+
+
+/*Home screen styles*/
+homeScreen .pageContent{justify-content: start;}
+.reminderList{display: flex; flex-direction: column;}
+  .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 10px 0 10px 0; position: relative; left: 0px;}
+    .leftSide{ display: flex; width: 15%; border-right: 1px solid;}
+      .weekDay{align-self: center; margin: 0 5px 0 5px;}
+    .rightSide{display: flex; width: 85%; justify-content: space-between; flex-wrap: wrap; margin: 0 5px 0 5px;}
+      .title{width: 100%; font-size: 1.3em; margin-bottom: 5px;}
+
+
+/*slider styles*/
 /* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-  -webkit-tap-highlight-color: transparent;
-}
-
+.switch {position: relative; display: inline-block; width: 60px; height: 34px; -webkit-tap-highlight-color: transparent;}
 /* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+.switch input {opacity: 0; width: 0; height: 0;}
 /* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 15px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 15px;
-}
-
-input:checked + .slider {
-  background-color: #4D77BE;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #4D77BE;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
+.slider {position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; border-radius: 15px;}
+.slider:before {position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; border-radius: 15px;}
+input:checked + .slider {background-color: #4D77BE;}
+input:focus + .slider { box-shadow: 0 0 1px #4D77BE;}
+input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transform: translateX(26px); transform: translateX(26px);}
 
 
 /*Animations*/
@@ -111,32 +62,12 @@ input:checked + .slider:before {
 @keyframes slideIn {
   to {left: 0}
 }
-
 .slideOut{animation: slideOut 0.5s; animation-fill-mode: forwards;}
 @keyframes slideOut {
   to {left: -480px; display: none;}
 }
 
-.fadeIn{animation-name:fadeIn; animation-delay: 0s; animation-duration:1.0s; animation-fill-mode: forwards;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-
-.fadeInAndOut{animation-name:fadeInAndOut; animation-delay: 0s; animation-duration:5.0s; animation-direction:alternate; animation-fill-mode: backwards;}
-@keyframes fadeInAndOut{
-  0% {
-    opacity:0;
-  }
-  25% {
-    opacity:1;
-  }
-  75% {
-    opacity:1;
-  }
-  100% {
-    opacity:0;
-  }
-}
-
-
+/*font styles*/
 /* vietnamese */
 @font-face {
   font-family: 'Work Sans';
