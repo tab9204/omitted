@@ -160,5 +160,28 @@ async function cleanDatabase(){
   console.log("database cleaned");
 }
 
+//requests push  permissions from the user if available
+async function requestPushPermissions(){
+  if('PushManager' in window){
+    var result = await Notification.requestPermission();
+    return result;
+  }
+  else{
+    throw "Push not supported";
+  }
+}
 
-export{repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData};
+//registers the service worker
+async function registerWorker(){
+  if ('serviceWorker' in navigator) {
+    var registration = await navigator.serviceWorker.register('service-worker.js');
+    console.log("service worker registered");
+    return registration;
+  }
+  else{
+    throw "Service Workers not supported";
+  }
+}
+
+
+export{repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData,requestPushPermissions,registerWorker};

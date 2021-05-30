@@ -1,7 +1,6 @@
 /*****app views****/
-import {repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData} from './data.js';
+import {repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData,requestPushPermissions} from './data.js';
 import {database} from './database.js';
-import {registerWorker,requestPushPermissions,subscribeUser} from './push.js';
 
 //header component
 var header = {
@@ -13,13 +12,7 @@ var header = {
         e.currentTarget.style.pointerEvents = "none";
 
         try{
-          //register service worker
-          var registration = await registerWorker();
-          //request permissions to use notifications
           var permission = await requestPushPermissions();
-          //subscribe to push notifications
-          await subscribeUser(registration);
-
         }
         catch (error){
           console.log(error);
