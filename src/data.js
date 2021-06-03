@@ -157,7 +157,7 @@ var push = {
     //the current time
     var now = moment().format("X");
     //how much time before a reminder's timestamp a notification should go out to the user
-    var notifyTime = 900000; //15 minutes
+    var notifyTime = 900; //15 minutes
     //loop through all the reminders
     for(var i = 0; i < all.rows.length; i++){
       var timestamp = all.rows[i].doc.timeStamp;
@@ -166,7 +166,7 @@ var push = {
       //if the time between now and the reminder timestamp is less then the notify time
       //and the reminder is not an all day reminder
       //and a notificatio was not already sendNotification
-      if((timestamp - now <= notifyTime) && (!allDay) && !notified){
+      if((timestamp - now <= notifyTime) && (!allDay) && (!notified)){
         //send a notification for the reminder
         push.swRegistration.showNotification("Don't forget....",{
            body: all.rows[i].doc.title
