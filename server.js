@@ -9,13 +9,13 @@ var fs = require('fs');
 var knox = require('knox');
 const cron = require('node-cron');
 
-const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
+//const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
+//const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
 
-webPush.setVapidDetails('mailto:nimdhiran@gmail.com', publicVapidKey, privateVapidKey);
+//webPush.setVapidDetails('mailto:nimdhiran@gmail.com', publicVapidKey, privateVapidKey);
 
 //aws bucket variables
-var key = process.env.AWS_ACCESS_KEY_ID;
+/*var key = process.env.AWS_ACCESS_KEY_ID;
 var secretKey = process.env.AWS_SECRET_ACCESS_KEY;
 var bucket = "remind-you";
 var headers = {
@@ -27,7 +27,7 @@ var s3 = knox.createClient({
     secret: secretKey,
     bucket: bucket,
     region: "us-west-2",
-});
+});*/
 
 server.listen(process.env.PORT || 3000, () => {
   console.log('Server started');
