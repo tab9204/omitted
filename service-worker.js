@@ -1,5 +1,5 @@
 //service worker script
-//importScripts('/socket.io/socket.io.js');
+importScripts('./libraries/pouchdb-7.2.1.js');
 
 var cacheName = 'offlineCache-v0';
 var contentToCache = [
@@ -41,9 +41,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', event => {
   const data = event.data.json();
   console.log("recieved push notification");
-
   self.registration.showNotification(data.title, {
-    body: data.body,
     silent: true
   });
 });

@@ -1,6 +1,7 @@
 /*****app views****/
-import {repeatButtons,cleanDatabase,sortedReminders,reminderSwipe,gatherReminderData,requestPushPermissions} from './data.js';
-import {database} from './database.js';
+import {events,reminders,push} from './data.js';
+
+/************view components*************/
 
 //header component
 var header = {
@@ -11,15 +12,9 @@ var header = {
         //disable this click event to prevent double clicks
         e.currentTarget.style.pointerEvents = "none";
 
-        try{
-          var permission = await requestPushPermissions();
-        }
-        catch (error){
-          console.log(error);
-        }
+        var permission = await push.requestPermissions();
+
         window.location = "#!/add";
-          //enable the click event
-        //e.currentTarget.style.pointerEvents = "auto";
       }})
     ])
   }
@@ -31,9 +26,9 @@ var reminder = {
     return m(".reminder",{
       id:vnode.attrs.reminder._id,//attach the id of the reminder to the id html attriute
       //add touch events
-      ontouchstart:(e)=>{reminderSwipe.startTouch(e)},
-      ontouchmove:(e)=>{reminderSwipe.moveTouch(e)},
-      ontouchend:(e)=>{reminderSwipe.endTouch(e)},
+      ontouchstart:(e)=>{events.reminderSwipe.startTouch(e)},
+      ontouchmove:(e)=>{events.reminderSwipe.moveTouch(e)},
+      ontouchend:(e)=>{events.reminderSwipe.endTouch(e)},
       //animation end event for when the slide out animation finishes
       onanimationend: (e)=>{
         if(e.target.classList.contains("slideOut")){
@@ -54,14 +49,31 @@ var reminder = {
   }
 }
 
+var repeatButtons = {
+  view: ()=>{
+    return m("div",[
+      m(".repeatListTitle", "Repeat"),
+      m(".repeatList",[
+        m(".btn.repeatItem.selected", {data: "Never", onclick: (e) =>{events.onRepeatClick(e)}},"Never"),
+        m(".btn.repeatItem", {data: "d", onclick: (e) =>{events.onRepeatClick(e)}},"Daily"),
+        m(".btn.repeatItem", {data: "w", onclick: (e) =>{events.onRepeatClick(e)}},"Weekly"),
+        m(".btn.repeatItem", {data: "M", onclick: (e) =>{events.onRepeatClick(e)}},"Monthy"),
+        m(".btn.repeatItem", {data: "y", onclick: (e) =>{events.onRepeatClick(e)}},"Yearly"),
+      ])
+    ])
+  }
+}
+
+/**********Views**********/
+
 //home screen
 var homeScreen = {
   oninit: async () => {
     try{
       //clean up the db before sorting the reminders
-      await cleanDatabase();
+      await database.cleanDatabase();
       //sort the reminders in the db
-      await sortedReminders.sort();
+      await reminders.sort();
       m.redraw();
     }
     catch (error){
@@ -75,7 +87,7 @@ var homeScreen = {
         m(".pageSection", [//todays reminders section
           m(".sectionHeader","Today's reminders"),
           m(".reminderList",[
-            sortedReminders.today.map((current) => {//loop through and display reminders sorted for today
+            reminders.today.map((current) => {//loop through and display reminders sorted for today
               return m(reminder, {reminder: current})
             })
           ])
@@ -83,7 +95,7 @@ var homeScreen = {
         m(".pageSection", [//upcoming reminders section
           m(".sectionHeader","Upcoming reminders"),
           m(".reminderList",[
-            sortedReminders.upcoming.map((current) => {//loop through and dispay reminders sorted for upcoming
+            reminders.upcoming.map((current) => {//loop through and dispay reminders sorted for upcoming
               return m(reminder, {reminder: current})
             })
           ])
@@ -119,7 +131,7 @@ var addScreen = {//add new reminder screen
             m("img.add",{src:"./assets/plus.png", onclick: async () => {
               try{
                 //get the data needed for a reminder
-                var newReminder = gatherReminderData();
+                var newReminder = reminders.gatherReminderData();
                 //add the reminder to the db
                 await database.addReminder(newReminder);
 
@@ -157,10 +169,7 @@ var addScreen = {//add new reminder screen
           ])
         ]),
         m(".pageSection", [//repeat section
-          m(".repeatListTitle", "Repeat"),
-          m(".repeatList",repeatButtons.repeats.map((item,i) => {
-             return m(i <= 0 ? ".selected.btn.repeatItem" : ".btn.repeatItem",{onclick: (e)=>{repeatButtons.onRepeatClick(e)}, data: item.value},item.text)
-          }))
+          m(repeatButtons)
         ])
       ])
     ])
