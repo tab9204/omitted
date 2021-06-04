@@ -115,7 +115,7 @@ var database = {
        var newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
        var newWeekDay = moment.unix(newTimestamp).format("ddd");
        var newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
-       //all reminder data is the same except for the timestamp, date, and weekday
+       //all reminder data is the same except for the timestamp, date, weekday, and notified
        var updated = {
          title: all.rows[i].doc.title,
          repeat: all.rows[i].doc.repeat,
@@ -124,7 +124,7 @@ var database = {
          weekDay: newWeekDay,
          date: newDate,
          time: all.rows[i].doc.time,
-         notified: all.rows[i].doc.notified
+         notified: false
        }
        await database.updateReminder(id,updated);
      }
