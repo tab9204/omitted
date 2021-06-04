@@ -184,10 +184,10 @@ var push = {
            notified: true
          }
          await database.updateReminder(id,updated);
-         //clean the db
-        database.cleanDatabase();
       }
     }
+    //clean the db
+    await database.cleanDatabase();
   }
 }
 

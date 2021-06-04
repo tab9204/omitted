@@ -1,5 +1,5 @@
 /*General styles*/
-body{margin: 0px; overflow: hidden; font-family: 'Work Sans', sans-serif;}
+body{margin: 0px; font-family: 'Work Sans', sans-serif;}
   .hidden{display:none !important;}
 
 #appRoot{height: 100%; position: relative;}
