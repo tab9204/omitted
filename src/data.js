@@ -186,8 +186,6 @@ var push = {
          await database.updateReminder(id,updated);
       }
     }
-    //clean the db
-    await database.cleanDatabase();
   }
 }
 

@@ -1,5 +1,5 @@
 import {homeScreen,addScreen} from './views.js';
-import {push} from './data.js';
+import {push,reminders} from './data.js';
 
 window.onload = async () =>{
   window.location = "#!/home";//start the app on the main screen
@@ -10,7 +10,10 @@ window.onload = async () =>{
   //check for reminder notifications at a regular cadence
   setInterval(async () =>{
     await push.notifyUser();
-  },60000)
+    await database.cleanDatabase();
+    await reminders.sort();
+    m.redraw();
+  },60000);
 
   //initalize the database user
   database.initUser();
