@@ -11,8 +11,17 @@ var header = {
       m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
         //disable this click event to prevent double clicks
         e.currentTarget.style.pointerEvents = "none";
-
-        var permission = await push.requestPermissions();
+        try{
+          //request notifications permission
+          var permission = await push.requestPermissions();
+          //try to subscribe the user to push notifications
+          var subscription = await push.subscribeUser(permission);
+          //add the subscription to the db
+          await database.saveUserSubscription(subscription);
+        }
+        catch(error){
+          console.log(error);
+        }
 
         window.location = "#!/add";
       }})
@@ -24,7 +33,7 @@ var header = {
 var reminder = {
   view: (vnode) => {
     return m(".reminder",{
-      id:vnode.attrs.reminder._id,//attach the id of the reminder to the id html attriute
+      id:vnode.attrs.reminder.reminder_id,//attach the id of the reminder to the id html attriute
       //add touch events
       ontouchstart:(e)=>{events.reminderSwipe.startTouch(e)},
       ontouchmove:(e)=>{events.reminderSwipe.moveTouch(e)},
@@ -128,17 +137,20 @@ var addScreen = {//add new reminder screen
         m(".pageSection", [//navigation section
           m(".navigation",[
             m("img.exit",{src:"./assets/x.png", onclick: ()=>{  window.location = "#!/home";}}),
-            m("img.add",{src:"./assets/plus.png", onclick: async () => {
+            m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
+              //disable this click event to prevent double clicks
+              e.currentTarget.style.pointerEvents = "none";
               try{
                 //get the data needed for a reminder
                 var newReminder = reminders.gatherReminderData();
                 //add the reminder to the db
-                await database.addReminder(newReminder);
+                await database.saveReminder(newReminder);
 
                 window.location = "#!/home";
               }
               catch (error){
                 alert(error);
+                e.currentTarget.style.pointerEvents = "auto";
               }
             }})
           ])

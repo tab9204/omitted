@@ -26,6 +26,7 @@ var reminders = {
   upcoming:[],
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
+    var all = await database.getAllReminders();
     //empty out the arrays
     reminders.today = [];
     reminders.upcoming = [];
@@ -33,21 +34,19 @@ var reminders = {
     var currentTime = moment().format("X");
     //the unix time that the current day ends at
     var endOfDay = moment().endOf("day").format("X");
-    //get all the reminders
-    var all = await database.allReminders();
-    //loop through all returned reminders
-    for(var i = 0; i < all.rows.length; i++){
+    //loop through all reminders
+    for(var i = 0; i < all.length; i++){
       //the timestamp of the current reminder
-      var reminderTime = all.rows[i].doc.timeStamp;
+      var reminderTime = all[i].details.timeStamp;
       //the reminder timestamp is between now and the end of the current day
       if(reminderTime >= currentTime && reminderTime <= endOfDay){
         //add this reminder to todays reminders
-        reminders.today.push(all.rows[i].doc);
+        reminders.today.push(all[i].details);
       }
       //the reminder is sometime after the end of the current day
       else if(reminderTime > endOfDay){
         //add this reminder to upcoming reminders
-        reminders.upcoming.push(all.rows[i].doc);
+        reminders.upcoming.push(all[i].details);
       }
     }
     //sort the arrays based on timestamp in acending order
@@ -82,15 +81,14 @@ var reminders = {
     var time = allDay ? "All day" : moment.unix(timeStamp).format("LT");
 
     //create the reminder object with the provided data
-    var reminder ={
+    var reminder = {
       title: title,
       repeat: repeat,
       allDay: allDay,
       timeStamp: timeStamp,
       weekDay: weekDay,
       date: date,
-      time: time,
-      notified: false //flags if this reminder has had a notification sent to the user
+      time: time
     }
 
     //validate that there is a title filled in
@@ -119,7 +117,7 @@ var push = {
       console.log("service worker registered");
     }
     else{
-      throw "Service Workers not supported";
+      console.log("Service Workers not supported");
     }
   },
   //requests notification permissions
@@ -129,25 +127,27 @@ var push = {
       return result;
     }
     else{
-      throw "Push not supported";
+      console.log("Push not supported");
+      return "default";
     }
   },
   //subscribes the user to push
-  subscribeUser: async () =>{
+  subscribeUser: async (permission) =>{
+    //check if there is an active push subscription
     var subbed =  await push.swRegistration.pushManager.getSubscription();
-    //subscribe the user if they are not already
-    if(!subbed){
+    //if there is no push subscription and notification permissions have been granted
+    if(!subbed && permission == "granted"){
       //convert the public key
       var publicKey = urlBase64ToUint8Array("BKd7x3X7jqttW_W2eFJPJQ9IrLlatDywpZffn4wZp8Pnuq8pOj9lWV5vxjm0d2XASC_3b-15G4ChcuB3bai9P-s");
       //subscribe the user to push notifications
       var subscription = await push.swRegistration.pushManager.subscribe({userVisibleOnly: true,applicationServerKey: publicKey});
-      //save the subscription to the user json file
-      await saveSubscription(subscription);
-
+      //save the subscription to the db
       console.log("User subscribed to push notifications");
+
+      return subscription;
     }
     else{
-      console.log("Already subscribed");
+      throw "User is either already subbed to push or did not grant notification permissions";
     }
   },
   //checks reminders and sends notifications for any reminders that are set for the current time
@@ -186,27 +186,6 @@ var push = {
          await database.updateReminder(id,updated);
       }
     }
-  }
-}
-
-
-//adds the user ID and push subscription to the user json file
- async function saveSubscription(subscription) {
-  var user =  await database.local.get("_local/user");
-  var newUser = {"id:":user.code,"sub":subscription};
-  try{
-    //send new user data to the server
-    var response = await fetch("/addUser", {
-     method: 'POST',
-     headers: {
-       'Content-Type': 'application/json'
-     },
-     body:JSON.stringify(newUser)
-   });
-   console.log("New user added");
-  }
-  catch(error){
-    console.log(error);
   }
 }
 

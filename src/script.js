@@ -7,16 +7,8 @@ window.onload = async () =>{
   //register the service worker
   await push.registerWorker();
 
-  //check for reminder notifications at a regular cadence
-  setInterval(async () =>{
-    await push.notifyUser();
-    await database.cleanDatabase();
-    await reminders.sort();
-    m.redraw();
-  },60000);
-
   //initalize the database user
-  database.initUser();
+  await database.initUser();
 
   var root = document.body.children[0];
 

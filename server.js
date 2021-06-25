@@ -5,29 +5,26 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const webPush = require('web-push');
-var fs = require('fs');
-var knox = require('knox');
+const fs = require('fs');
 const cron = require('node-cron');
+const { Client } = require('pg');
+const moment = require("moment");
 
-//const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-//const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
 
-//webPush.setVapidDetails('mailto:nimdhiran@gmail.com', publicVapidKey, privateVapidKey);
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-//aws bucket variables
-/*var key = process.env.AWS_ACCESS_KEY_ID;
-var secretKey = process.env.AWS_SECRET_ACCESS_KEY;
-var bucket = "remind-you";
-var headers = {
-    'Content-Type': 'application/json',
-    'x-amz-acl': 'public-read'
-  };
-var s3 = knox.createClient({
-    key: key,
-    secret: secretKey,
-    bucket: bucket,
-    region: "us-west-2",
-});*/
+client.connect();
+
+
+const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
+const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
+
+webPush.setVapidDetails('mailto:nimdhiran@gmail.com', publicVapidKey, privateVapidKey);
 
 server.listen(process.env.PORT || 3000, () => {
   console.log('Server started');
@@ -63,64 +60,129 @@ app.get("/service-worker.js",(req,res) =>{
     res.sendFile(__dirname + '/service-worker.js');
 });
 
-app.post('/addUser',(req,res) => {
-  const user = req.body;
-  console.log(req.body);
-  addUser(user).then((result)=>{
-    res.send(result);
-  });
+app.post('/saveUserSub', async (req,res) => {
+  try{
+    //insert the new user and sub into the db
+    const result = await client.query(`insert into users (user_id, sub) values (${req.body.user_id}, '${JSON.stringify(req.body.sub)}')`);
+    res.send("User subscription saved");
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'User subscription failed to save to db'});
+  }
+
 });
 
-//send a push notification to each user every hour
-/*cron.schedule('* * * * * ', async () => {
+app.post('/saveReminder', async (req,res) => {
+  try{
+    //insert the new user and sub into the db
+    const result = await client.query(`insert into reminders (user_id, details) values (${req.body.user_id}, '${JSON.stringify(req.body.details)}')`);
+    res.send(result);
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Reminder could not be added to the db'});
+  }
+
+});
+
+app.post('/deleteReminder', async (req,res) => {
+  try{
+    //delete the reminder from the db
+    const result = await client.query(`delete from reminders where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${req.body.reminder_id}'`);
+    res.send(result);
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Reminder could not be deleted to the db'});
+  }
+
+});
+
+app.post('/updateReminder', async (req,res) => {
+  try{
+    //update the reminder
+    const result = await client.query(`update reminders set details = '${JSON.stringify(req.body.new_data)}' where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${req.body.reminder_id}'`);
+    res.send(result);
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Reminder could not be updated'});
+  }
+
+});
+
+app.post('/getAllReminders', async (req,res) => {
+  try{
+    //insert the new user and sub into the db
+    const result = await client.query(`select details from reminders where user_id = ${req.body.user_id}`);
+    res.send(result.rows);
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Could not retrieve reminders from the db'});
+  }
+
+});
+
+//check for upcoming reminders every minute
+cron.schedule('* * * * * ', async () => {
   console.log("cron running");
-  getUserFile().then((jsonFile) =>{
-    for(let i = 0; i < jsonFile.length; i++){
-      const subscription = jsonFile[i].sub;
-      const payload = JSON.stringify({title: 'You have a reminder coming up!'});
-      webPush.sendNotification(subscription,payload).catch(error => console.log("error sending the notificaiton"));
-    }
-  })
-});*/
+  try{
+    //the time right now as a unix timstamp
+    const now = moment().format("X");
+    //the time right now in hour and minutes
+    const time = moment().format("hh:mm A");
+    //get all users from db
+    const users = await client.query(`select * from users`);
+    const allUsers =  users.rows;
+    //loop through all users
+    for(let i = 0; i < allUsers.length; i++){
+      //the current user id
+      const user_id = allUsers[i].user_id;
+      //the current user push notification subscription
+      const subscription = allUsers[i].sub;
+      //get all remindres for the current user
+      const reminders = await client.query(`select details from reminders where user_id = ${user_id}`);
+      const allReminders = reminders.rows;
+      //loop through all the user's reminders
+      for(let x = 0; x < allReminders.length; x++){
+        const reminder = allReminders[x].details;
+        //send a push notification if the reminder is
+          //coming up in less then 30 minutes but has not already happened
+          //is not an all day reminder
+          //has not already had a notication sent
+        if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified){
+          const payload = JSON.stringify({
+            title: 'You have a reminder coming up soon!',
+            body: reminder.title
+          });
+          //send push notification
+          webPush.sendNotification(subscription, payload).catch(error => console.error(error));
 
-
-//returns the contents of the json user file
-function getUserFile(){
-  return new Promise(function(resolve, reject) {
-    s3.getFile('/users.json', function(err, res){
-      if (err){throw new Error(err);}
-      else if(res.statusCode === 200){
-        res.on('data', function(chunk){
-          console.log(JSON.parse(chunk.toString()));
-          resolve(JSON.parse(chunk.toString()));
-        });
-      }
-    });
-  });
-}
-//adds a new user to the json file
-function addUser(newUser){
-  return new Promise(function(resolve, reject) {
-    //get the current memoory file
-    getUserFile().then(function(jsonFile){
-      //add thew new user to the file
-      jsonFile.push(newUser);
-       //convert the json file to a string
-      var update = JSON.stringify(jsonFile);
-      console.log(update);
-
-      var req = s3.put('/users.json', {
-          'Content-Length': Buffer.byteLength(update),
-          'Content-Type': 'application/json'
-      });
-      req.on('response', function(res){
-        if (200 == res.statusCode) {
-          console.log('saved to %s', req.url);
+          //set the reminder notifed to true and update the reminder db
+          reminder.notified = true;
+          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
-      });
-      req.end(update);
+        //if the reminder is all day and the current time is 06:00 AM send a notification
+        else if(reminder.allDay && time == "06:00 AM"){
+          const payload = JSON.stringify({
+            title: "Don't forget this today!",
+            body: reminder.title
+          });
+          //send push notification
+          webPush.sendNotification(subscription, payload).catch(error => console.error(error));
+          //set the reminder notifed to true and update the reminder db
+          reminder.notified = true;
+          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+          console.log("reminder updated");
+        }
 
-      resolve("New user added to file");
-    });
-  });
-}
+      }
+
+    }
+  }
+  catch (error){
+    console.log(error);
+  }
+});

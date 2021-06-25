@@ -42,6 +42,6 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   console.log("recieved push notification");
   self.registration.showNotification(data.title, {
-    silent: true
+    body: data.body
   });
 });
