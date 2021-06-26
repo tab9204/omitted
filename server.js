@@ -148,6 +148,10 @@ cron.schedule('* * * * * ', async () => {
       //loop through all the user's reminders
       for(let x = 0; x < allReminders.length; x++){
         const reminder = allReminders[x].details;
+        //the date of the reminder
+        const reminderDate = moment.unix(reminder.timeStamp).format("MM/DD/YYYY");
+        //todays date
+        const today = moment().format("MM/DD/YYYY");
         //send a push notification if the reminder is
           //coming up in less then 30 minutes but has not already happened
           //is not an all day reminder
@@ -165,7 +169,7 @@ cron.schedule('* * * * * ', async () => {
           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
         //if the reminder is all day and the current time is 06:00 AM send a notification
-        else if(reminder.allDay && time == "06:00 AM"){
+        else if(reminder.allDay && reminderDate == today){
           const payload = JSON.stringify({
             title: "Don't forget this today!",
             body: reminder.title
