@@ -129,9 +129,9 @@ app.post('/getAllReminders', async (req,res) => {
 cron.schedule('* * * * * ', async () => {
   console.log("cron running");
   try{
-    console.log("The date is: " + moment().format("MM/DD/YYY hh:mm"));
+    console.log("The date is: " + moment().format("MM/DD/YYYY hh:mm"));
     //the time right now as a unix timstamp
-    const now = moment().format("X");
+    const now = moment().unix();
     //get all users from db
     const users = await client.query(`select * from users`);
     const allUsers =  users.rows;
@@ -150,7 +150,9 @@ cron.schedule('* * * * * ', async () => {
         //the date of the reminder
         const reminderDate = moment.unix(reminder.timeStamp).format("MM/DD/YYYY");
         //todays date
-        const today = moment().format("MM/DD/YYYY");
+        const today = moment.unix(moment().unix()).format("MM/DD/YYYY");
+
+        console.log(reminder.title + ": " + reminderDate + " vs " + today)
         //send a push notification if the reminder is
           //coming up in less then 30 minutes but has not already happened
           //is not an all day reminder
