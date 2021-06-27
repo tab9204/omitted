@@ -127,7 +127,7 @@ app.post('/getAllReminders', async (req,res) => {
 
 //check for upcoming reminders every minute
 cron.schedule('* * * * * ', async () => {
-  console.log("cron running");
+  console.log("Checking reminders");
   try{
     console.log("The date is: " + moment().format("MM/DD/YYYY hh:mm"));
     //the time right now as a utc timstamp
@@ -147,12 +147,6 @@ cron.schedule('* * * * * ', async () => {
       //loop through all the user's reminders
       for(let x = 0; x < allReminders.length; x++){
         const reminder = allReminders[x].details;
-        //the reminder date converted to a utc date
-        const reminderDate = moment.unix(reminder.timeStamp).format("MM/DD/YYYY");
-        //todays date in utc
-        const today = moment.utc().format("MM/DD/YYYY");
-
-        console.log(reminder.title + ": " + reminderDate + " vs " + today)
         //send a push notification if the reminder is
           //coming up in less then 30 minutes but has not already happened
           //is not an all day reminder
@@ -169,8 +163,8 @@ cron.schedule('* * * * * ', async () => {
           reminder.notified = true;
           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
-        //if the reminder is all day and it is the day of the reminder
-        else if(reminder.allDay && reminderDate == today && !reminder.notified){
+        //if the reminder is all day and it is coming up in less then a day
+        else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified){
           const payload = JSON.stringify({
             title: "Don't forget this today!",
             body: reminder.title
