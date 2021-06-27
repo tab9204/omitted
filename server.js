@@ -129,10 +129,9 @@ app.post('/getAllReminders', async (req,res) => {
 cron.schedule('* * * * * ', async () => {
   console.log("cron running");
   try{
+    console.log("The date is: " + moment().format("MM/DD/YYY hh:mm"));
     //the time right now as a unix timstamp
     const now = moment().format("X");
-    //the time right now in hour and minutes
-    const time = moment().format("hh:mm A");
     //get all users from db
     const users = await client.query(`select * from users`);
     const allUsers =  users.rows;
@@ -168,8 +167,8 @@ cron.schedule('* * * * * ', async () => {
           reminder.notified = true;
           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
-        //if the reminder is all day and the current time is 06:00 AM send a notification
-        else if(reminder.allDay && reminderDate == today){
+        //if the reminder is all day and it is the day of the reminder
+        else if(reminder.allDay && reminderDate == today && !reminder.notified){
           const payload = JSON.stringify({
             title: "Don't forget this today!",
             body: reminder.title
