@@ -130,8 +130,8 @@ cron.schedule('* * * * * ', async () => {
   console.log("cron running");
   try{
     console.log("The date is: " + moment().format("MM/DD/YYYY hh:mm"));
-    //the time right now as a unix timstamp
-    const now = moment().unix();
+    //the time right now as a utc timstamp
+    const now = moment.utc().format("X");
     //get all users from db
     const users = await client.query(`select * from users`);
     const allUsers =  users.rows;
@@ -147,10 +147,10 @@ cron.schedule('* * * * * ', async () => {
       //loop through all the user's reminders
       for(let x = 0; x < allReminders.length; x++){
         const reminder = allReminders[x].details;
-        //the date of the reminder
+        //the reminder date converted to a utc date
         const reminderDate = moment.unix(reminder.timeStamp).format("MM/DD/YYYY");
-        //todays date
-        const today = moment.unix(moment().unix()).format("MM/DD/YYYY");
+        //todays date in utc
+        const today = moment.utc().format("MM/DD/YYYY");
 
         console.log(reminder.title + ": " + reminderDate + " vs " + today)
         //send a push notification if the reminder is
