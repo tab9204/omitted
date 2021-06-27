@@ -129,7 +129,7 @@ app.post('/getAllReminders', async (req,res) => {
 cron.schedule('* * * * * ', async () => {
   console.log("Checking reminders");
   try{
-    console.log("The date is: " + moment().format("MM/DD/YYYY hh:mm"));
+    console.log("Current time: " + moment.utc().format("X"));
     //the time right now as a utc timstamp
     const now = moment.utc().format("X");
     //get all users from db
