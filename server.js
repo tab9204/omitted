@@ -159,6 +159,8 @@ cron.schedule('* * * * * ', async () => {
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
 
+          console.log("sending push notification");
+
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
@@ -171,6 +173,9 @@ cron.schedule('* * * * * ', async () => {
           });
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
+
+          console.log("sending push notification");
+
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
