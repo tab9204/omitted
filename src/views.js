@@ -92,17 +92,17 @@ var homeScreen = {
       m(header),
       m(".pageContent",[
         m(".pageSection", [//todays reminders section
-          m(".sectionHeader","Today's reminders"),
+          m(".sectionHeader","Upcoming reminders"),
           m(".reminderList",[
-            reminders.today.map((current) => {//loop through and display reminders sorted for today
+            reminders.upcoming.map((current) => {//loop through and display reminders sorted for today
               return m(reminder, {reminder: current})
             })
           ])
         ]),
         m(".pageSection", [//upcoming reminders section
-          m(".sectionHeader","Upcoming reminders"),
+          m(".sectionHeader","Future reminders"),
           m(".reminderList",[
-            reminders.upcoming.map((current) => {//loop through and dispay reminders sorted for upcoming
+            reminders.future.map((current) => {//loop through and dispay reminders sorted for upcoming
               return m(reminder, {reminder: current})
             })
           ])

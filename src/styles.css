@@ -9,8 +9,8 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif;}
       .backBtn{position: absolute; width: 45px;}
       .header .savedNavIcon{position: absolute; left:5px;}
     .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll;}
-      .pageContent .pageSection{margin: 13px 10px 13px 10px;}
-        .sectionHeader{font-size: 1.5em; margin-bottom: 15px;}
+      .pageContent .pageSection{margin: 10px 10px 10px 10px;}
+        .sectionHeader{font-size: 1.5em; margin-bottom: 10px;}
 
 
 /*Add screen styles */
@@ -37,11 +37,14 @@ input:focus{outline: none;}
 /*Home screen styles*/
 homeScreen .pageContent{justify-content: start;}
 .reminderList{display: flex; flex-direction: column;}
-  .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 10px 0 10px 0; position: relative; left: 0px;}
+  .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 8px 0 8px 0; position: relative; left: 0px;}
     .leftSide{ display: flex; width: 15%; border-right: 1px solid;}
       .weekDay{align-self: center; margin: 0 5px 0 5px;}
     .rightSide{display: flex; width: 85%; justify-content: space-between; flex-wrap: wrap; margin: 0 5px 0 5px;}
       .title{width: 100%; font-size: 1.3em; margin-bottom: 5px;}
+      .date{font-size: 1.1em;}
+      .time{font-size: 1.1em;}
+      .repeat{font-size: .7em; align-self: center;}
 
 
 /*slider styles*/

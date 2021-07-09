@@ -27,32 +27,30 @@ var reminders = {
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
     //empty out the arrays
-    reminders.today = [];
     reminders.upcoming = [];
+    reminders.future = [];
 
     var all = await database.getAllReminders();
     //the unix time right now
-    var currentTime = moment().format("X");
-    //the unix time that the current day ends at
-    var endOfDay = moment().endOf("day").format("X");
+    var now = moment.utc().format("X");
     //loop through all reminders
     for(var i = 0; i < all.length; i++){
       //the timestamp of the current reminder
       var reminderTime = all[i].details.timeStamp;
-      //the reminder timestamp is between now and the end of the current day
-      if(reminderTime >= currentTime && reminderTime <= endOfDay){
+      //if the reminder time is 24 hours or less from right now show the reminder as upcoming
+      if(reminderTime - now <= 86399 && reminderTime - now >= 0){
         //add this reminder to todays reminders
-        reminders.today.push(all[i].details);
-      }
-      //the reminder is sometime after the end of the current day
-      else if(reminderTime > endOfDay){
-        //add this reminder to upcoming reminders
         reminders.upcoming.push(all[i].details);
+      }
+      //if the reminder time is greater then 24 hours from now show it as a future reminder
+      else if(reminderTime - now > 86400){
+        //add this reminder to upcoming reminders
+        reminders.future.push(all[i].details);
       }
     }
     //sort the arrays based on timestamp in acending order
     reminders.upcoming.sort((a,b) => a.timeStamp - b.timeStamp);
-    reminders.today.sort((a,b) => a.timeStamp - b.timeStamp);
+    reminders.future.sort((a,b) => a.timeStamp - b.timeStamp);
   },
   //validates reminder inputs and returns all data needed for reminder
   gatherReminderData: () =>{
