@@ -20,10 +20,10 @@ var events = {
 
 ////data and functionality for related to reminders
 var reminders = {
-  //reminders for the current day
-  today: [],
-  //reminders that are later then the current day
+  //reminders coming withing 24 hours
   upcoming:[],
+  //reminders further then 24 hours away
+  future: [],
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
     //empty out the arrays
