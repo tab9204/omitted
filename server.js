@@ -217,22 +217,32 @@ async function cleanReminders(user_id){
     const reminderRepeat =  reminders[i].details.repeat;
     const reminder_id = reminders[i].details.reminder_id;
 
+    const updated = {
+      reminder_id: reminder_id,
+      title: reminders[i].details.title,
+      repeat: reminders[i].details.repeat,
+      allDay: reminders[i].details.allDay,
+      timeStamp: reminders[i].details.timeStamp,
+      offset: -420,
+      notified: false
+    }
+
+    const result = await client.query(`update reminders set details = '${JSON.stringify(updated)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
+
     //if the reminder has already happened but has a repeat requency
     if(reminderTime <= now && reminderRepeat !== "Never"){
       //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
       const newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
       const newWeekDay = moment.unix(newTimestamp).format("ddd");
       const newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
-      //all reminder data is the same except for the timestamp, date, weekday, and notified
+      //all reminder data is the same except for the timestamp and notified
       const updated = {
         reminder_id: reminder_id,
         title: reminders[i].details.title,
         repeat: reminders[i].details.repeat,
         allDay: reminders[i].details.allDay,
         timeStamp: newTimestamp,
-        weekDay: newWeekDay,
-        date: newDate,
-        time: reminders[i].details.time,
+        offset: reminders[i].details.offset,
         notified: false
       }
       const result = await client.query(`update reminders set details = '${JSON.stringify(updated)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);

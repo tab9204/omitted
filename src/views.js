@@ -46,12 +46,12 @@ var reminder = {
       }
     },[
       m(".leftSide",[
-        m(".weekday",vnode.attrs.reminder.weekDay)
+        m(".weekday",moment.unix(vnode.attrs.reminder.timeStamp).format("ddd"))
       ]),
       m(".rightSide",[
         m(".title",vnode.attrs.reminder.title),
-        m(".date",vnode.attrs.reminder.date),
-        m(".time",vnode.attrs.reminder.time),
+        m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(vnode.attrs.reminder.offset).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
+        m(".time",vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
         m(".repeat",vnode.attrs.reminder.repeat),
       ])
     ])

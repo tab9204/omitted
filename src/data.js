@@ -29,7 +29,7 @@ var reminders = {
     //empty out the arrays
     reminders.today = [];
     reminders.upcoming = [];
-    
+
     var all = await database.getAllReminders();
     //the unix time right now
     var currentTime = moment().format("X");
@@ -74,22 +74,19 @@ var reminders = {
     var repeat = document.querySelectorAll(".repeatItem.selected")[0].attributes.data.value;
     //date and time formatted as a unix timestamp
     var timeStamp = moment(pickerDate + " " + selectedTime, "YYYY-MM-DD HH:mm A").format("X");
-    //day of the week for the selected time
-    var weekDay = moment.unix(timeStamp).format("ddd");
-    //the selected time formatted as a human readable date
-    var date = moment.unix(timeStamp).format("MM/DD/YYYY");
-    //the time of the selected date and time
-    var time = allDay ? "All day" : moment.unix(timeStamp).format("LT");
+    //the timezone offset of the timestamp
+    //used to show the correct date of all day reminders
+    var offset = moment.unix(timeStamp).utcOffset();
 
     //create the reminder object with the provided data
     var reminder = {
+      reminder_id: (Math.floor(Math.random() * 100) * Date.now()),//generate a random id
       title: title,
       repeat: repeat,
       allDay: allDay,
       timeStamp: timeStamp,
-      weekDay: weekDay,
-      date: date,
-      time: time
+      offset: offset,
+      notified: false//if the reminder has had a notification sent to the user
     }
 
     //validate that there is a title filled in
@@ -149,43 +146,6 @@ var push = {
     }
     else{
       throw "User is either already subbed to push or did not grant notification permissions";
-    }
-  },
-  //checks reminders and sends notifications for any reminders that are set for the current time
-  notifyUser: async () =>{
-    //get all reminders
-    var all = await database.allReminders();
-    //the current time
-    var now = moment().format("X");
-    //how much time before a reminder's timestamp a notification should go out to the user
-    var notifyTime = 900; //15 minutes
-    //loop through all the reminders
-    for(var i = 0; i < all.rows.length; i++){
-      var timestamp = all.rows[i].doc.timeStamp;
-      var allDay = all.rows[i].doc.allDay;
-      var notified = all.rows[i].doc.notified;
-      //if the time between now and the reminder timestamp is less then the notify time
-      //and the reminder is not an all day reminder
-      //and a notificatio was not already sendNotification
-      if((timestamp - now <= notifyTime) && (!allDay) && (!notified)){
-        //send a notification for the reminder
-        push.swRegistration.showNotification("Don't forget....",{
-           body: all.rows[i].doc.title
-         });
-         //update the reminder notified property to true
-         var id = all.rows[i].doc._id;
-         var updated = {
-           title: all.rows[i].doc.title,
-           repeat: all.rows[i].doc.repeat,
-           allDay: all.rows[i].doc.allDay,
-           timeStamp: all.rows[i].doc.timeStamp,
-           weekDay: all.rows[i].doc.weekDay,
-           date: all.rows[i].doc.date,
-           time: all.rows[i].doc.time,
-           notified: true
-         }
-         await database.updateReminder(id,updated);
-      }
     }
   }
 }

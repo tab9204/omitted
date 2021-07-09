@@ -55,20 +55,8 @@ var database = {
  },
  //saves the specified reminder to the db
  saveReminder: async(newReminder) =>{
-   //the specific details of the reminder
-   var reminderDetails = {
-     reminder_id: (Math.floor(Math.random() * 100) * Date.now()),//generate a random id
-     title: newReminder.title,
-     repeat: newReminder.repeat,
-     allDay: newReminder.allDay,
-     timeStamp:newReminder.timeStamp,
-     weekDay:newReminder.weekDay,
-     date:newReminder.date,
-     time:newReminder.time,
-     notified: false//since this a new reminder default notified to false
-   }
    //get the user id and the reminder details
-   var save = {"user_id":database.user_id,"details":reminderDetails};
+   var save = {"user_id":database.user_id,"details":newReminder};
    //send new reminder to the server
    var response = await fetch("/saveReminder", {
     method: 'POST',
