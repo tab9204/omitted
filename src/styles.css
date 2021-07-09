@@ -37,11 +37,12 @@ input:focus{outline: none;}
 /*Home screen styles*/
 homeScreen .pageContent{justify-content: start;}
 .reminderList{display: flex; flex-direction: column;}
-  .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 10px 0 10px 0; position: relative; left: 0px;}
-    .leftSide{ display: flex; width: 15%; border-right: 1px solid;}
-      .weekDay{align-self: center; margin: 0 5px 0 5px;}
-    .rightSide{display: flex; width: 85%; justify-content: space-between; flex-wrap: wrap; margin: 0 5px 0 5px;}
-      .title{width: 100%; font-size: 1.3em; margin-bottom: 5px;}
+  .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 10px 5px 10px 5px; position: relative; left: 0px; justify-content: space-between; flex-wrap: wrap;}
+    .date{ font-size: 1.5em;}
+    .time{ font-size: 1.1em;}
+    .weekDay{ font-size: 1.1em;}
+    .title{width: 100%; font-size: 1.3em; margin: 5px 0 5px 0;}
+    .repeat{width: 100%; font-size: .8em; text-align: right;}
 
 
 /*slider styles*/

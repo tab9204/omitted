@@ -45,15 +45,11 @@ var reminder = {
         }
       }
     },[
-      m(".leftSide",[
-        m(".weekday",moment.unix(vnode.attrs.reminder.timeStamp).format("ddd"))
-      ]),
-      m(".rightSide",[
-        m(".title",vnode.attrs.reminder.title),
-        m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(vnode.attrs.reminder.offset).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
-        m(".time",vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
-        m(".repeat",vnode.attrs.reminder.repeat),
-      ])
+      m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(vnode.attrs.reminder.offset).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
+      m(".time",vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
+      m(".weekday",moment.unix(vnode.attrs.reminder.timeStamp).format("ddd")),
+      m(".title",vnode.attrs.reminder.title),
+      m(".repeat",vnode.attrs.reminder.repeat)
     ])
   }
 }
@@ -80,7 +76,7 @@ var homeScreen = {
   oninit: async () => {
     try{
       //sort the reminders in the db
-      await reminders.sort();
+      await reminders.getAll();
       m.redraw();
     }
     catch (error){
@@ -92,17 +88,8 @@ var homeScreen = {
       m(header),
       m(".pageContent",[
         m(".pageSection", [//todays reminders section
-          m(".sectionHeader","Today's reminders"),
           m(".reminderList",[
-            reminders.today.map((current) => {//loop through and display reminders sorted for today
-              return m(reminder, {reminder: current})
-            })
-          ])
-        ]),
-        m(".pageSection", [//upcoming reminders section
-          m(".sectionHeader","Upcoming reminders"),
-          m(".reminderList",[
-            reminders.upcoming.map((current) => {//loop through and dispay reminders sorted for upcoming
+            reminders.allReminders.map((current) => {//loop through and display reminders sorted for today
               return m(reminder, {reminder: current})
             })
           ])

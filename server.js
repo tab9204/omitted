@@ -163,13 +163,11 @@ cron.schedule('* * * * * ', async () => {
           //has not already had a notication sent
         if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified){
           const payload = JSON.stringify({
-            title: 'You have a reminder coming up soon!',
+            title: 'You have a reminder coming up!',
             body: reminder.title
           });
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
-
-          console.log("sending push notification");
 
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
@@ -183,8 +181,6 @@ cron.schedule('* * * * * ', async () => {
           });
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
-
-          console.log("sending push notification");
 
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
