@@ -217,18 +217,6 @@ async function cleanReminders(user_id){
     const reminderRepeat =  reminders[i].details.repeat;
     const reminder_id = reminders[i].details.reminder_id;
 
-    const updated = {
-      reminder_id: reminder_id,
-      title: reminders[i].details.title,
-      repeat: reminders[i].details.repeat,
-      allDay: reminders[i].details.allDay,
-      timeStamp: reminders[i].details.timeStamp,
-      offset: -420,
-      notified: false
-    }
-
-    const result = await client.query(`update reminders set details = '${JSON.stringify(updated)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
-
     //if the reminder has already happened but has a repeat requency
     if(reminderTime <= now && reminderRepeat !== "Never"){
       //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
