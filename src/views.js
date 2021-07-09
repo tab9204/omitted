@@ -79,8 +79,6 @@ var repeatButtons = {
 var homeScreen = {
   oninit: async () => {
     try{
-      //clean up the db before sorting the reminders
-      await database.cleanDatabase();
       //sort the reminders in the db
       await reminders.sort();
       m.redraw();

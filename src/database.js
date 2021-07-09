@@ -34,48 +34,6 @@ var database = {
       }
     }
   },
- //cleans and organizes the db by:
- //incrementing any reminders that have a repeat frequency
- //deleting old reminders that are no longer in use
- cleanDatabase: async() =>{
-   var all = await database.getAllReminders();
-   //the unix time right now
-   var currentTime = moment().format("X");
-
-   for(var i = 0; i < all.length; i++){//loop through all returned reminders
-
-     var reminderTime = all[i].details.timeStamp;//timestamp on the reminder
-     var reminderRepeat =  all[i].details.repeat;//the repeat of the reminder
-
-     //if the reminder has already happened but has a repeat requency
-     if(reminderTime <= currentTime && reminderRepeat !== "Never"){
-       var id = all[i].details.reminder_id;
-       //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
-       var newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
-       var newWeekDay = moment.unix(newTimestamp).format("ddd");
-       var newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
-       //all reminder data is the same except for the timestamp, date, weekday, and notified
-       var updated = {
-         reminder_id: id,
-         title: all[i].details.title,
-         repeat: all[i].details.repeat,
-         allDay: all[i].details.allDay,
-         timeStamp: newTimestamp,
-         weekDay: newWeekDay,
-         date: newDate,
-         time: all[i].details.time,
-         notified: false
-       }
-       await database.updateReminder(id,updated);
-     }
-     //otherwise if the reminder is in the past and does not repeat
-     else if(reminderTime <= currentTime && reminderRepeat == "Never"){
-       //delete the reminder from the db
-       await database.deleteReminder(all[i].details.reminder_id);
-     }
-   }
-   console.log("database cleaned");
- },
  //gets all reminders for the user from the db
  getAllReminders: async () =>{
    //request reminders from the server
@@ -139,7 +97,7 @@ var database = {
     body:JSON.stringify(remove)
   });
 
-  //if the response contains an error the subscription was not saved properly
+  //if the response contains an error the subscription was not removed properly
   if(!response.ok){ throw "Reminder could not be deleted from the db";}
   else{console.log("Reminder deleted from db");}
  },
@@ -156,7 +114,7 @@ var database = {
     body:JSON.stringify(update)
   });
 
-  //if the response contains an error the subscription was not saved properly
+  //if the response contains an error the subscription was not updated properly
   if(!response.ok){ throw "Reminder could not be updated";}
   else{console.log("Reminder updated");}
  },

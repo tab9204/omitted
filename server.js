@@ -1,4 +1,4 @@
- require('dotenv').config({ path: 'keys.env' });
+require('dotenv').config({ path: 'keys.env' });
 
 const express = require('express');
 const app = express();
@@ -10,7 +10,7 @@ const cron = require('node-cron');
 const { Client } = require('pg');
 const moment = require("moment");
 
-
+//database client
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -20,7 +20,7 @@ const client = new Client({
 
 client.connect();
 
-
+//push notification keys
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
 const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
 
@@ -47,7 +47,7 @@ app.use('/libraries', express.static('libraries'));
 app.use('/src', express.static('src'));
 app.use('/', express.static('/'));
 
-//serve the html file
+/***************Server routes***************/
 app.get("/",(req,res) =>{
     res.sendFile(__dirname + '/index.html');
 });
@@ -60,6 +60,7 @@ app.get("/service-worker.js",(req,res) =>{
     res.sendFile(__dirname + '/service-worker.js');
 });
 
+//adds a new user to the db
 app.post('/saveUserSub', async (req,res) => {
   try{
     //insert the new user and sub into the db
@@ -73,6 +74,7 @@ app.post('/saveUserSub', async (req,res) => {
 
 });
 
+//adds a reminder to the db for a specified user
 app.post('/saveReminder', async (req,res) => {
   try{
     //insert the new user and sub into the db
@@ -86,6 +88,7 @@ app.post('/saveReminder', async (req,res) => {
 
 });
 
+//removes a reminder from the db for a specified user
 app.post('/deleteReminder', async (req,res) => {
   try{
     //delete the reminder from the db
@@ -99,6 +102,7 @@ app.post('/deleteReminder', async (req,res) => {
 
 });
 
+//updates an existing reminder in the db with new data for a specified user
 app.post('/updateReminder', async (req,res) => {
   try{
     //update the reminder
@@ -112,9 +116,12 @@ app.post('/updateReminder', async (req,res) => {
 
 });
 
+//returns all reminders for a specified user
 app.post('/getAllReminders', async (req,res) => {
   try{
-    //insert the new user and sub into the db
+    //first clean the users reminders so we return the most up to date reminders to the client
+    await cleanReminders(req.body.user_id);
+    //get all reminder details for the user
     const result = await client.query(`select details from reminders where user_id = ${req.body.user_id}`);
     res.send(result.rows);
   }
@@ -124,6 +131,7 @@ app.post('/getAllReminders', async (req,res) => {
   }
 
 });
+
 
 //check for upcoming reminders every minute
 cron.schedule('* * * * * ', async () => {
@@ -139,6 +147,8 @@ cron.schedule('* * * * * ', async () => {
     for(let i = 0; i < allUsers.length; i++){
       //the current user id
       const user_id = allUsers[i].user_id;
+      //clean the db for the user
+      await cleanReminders(user_id);
       //the current user push notification subscription
       const subscription = allUsers[i].sub;
       //get all remindres for the current user
@@ -190,3 +200,49 @@ cron.schedule('* * * * * ', async () => {
     console.log(error);
   }
 });
+
+//cleans and organizes a user's reminders in the db by:
+//incrementing any reminders that have a repeat frequency
+//deleting old reminders that are no longer in use
+async function cleanReminders(user_id){
+  const result = await client.query(`select details from reminders where user_id = ${user_id}`);
+  //the unix time right now
+  const now = moment.utc().format("X");
+
+  const reminders = result.rows;
+
+  for(let i = 0; i < reminders.length; i++){//loop through all returned reminders
+
+    const reminderTime = reminders[i].details.timeStamp;
+    const reminderRepeat =  reminders[i].details.repeat;
+    const reminder_id = reminders[i].details.reminder_id;
+
+    //if the reminder has already happened but has a repeat requency
+    if(reminderTime <= now && reminderRepeat !== "Never"){
+      //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
+      const newTimestamp = moment.unix(reminderTime).add(1,reminderRepeat).format("X");
+      const newWeekDay = moment.unix(newTimestamp).format("ddd");
+      const newDate = moment.unix(newTimestamp).format("MM/DD/YYYY");
+      //all reminder data is the same except for the timestamp, date, weekday, and notified
+      const updated = {
+        reminder_id: reminder_id,
+        title: reminders[i].details.title,
+        repeat: reminders[i].details.repeat,
+        allDay: reminders[i].details.allDay,
+        timeStamp: newTimestamp,
+        weekDay: newWeekDay,
+        date: newDate,
+        time: reminders[i].details.time,
+        notified: false
+      }
+      const result = await client.query(`update reminders set details = '${JSON.stringify(updated)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
+    }
+    //otherwise if the reminder is in the past and does not repeat
+    else if(reminderTime <= now && reminderRepeat == "Never"){
+      //delete the reminder from the db
+      const result = await client.query(`delete from reminders where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
+    }
+
+  }
+  console.log("reminders cleaned");
+}

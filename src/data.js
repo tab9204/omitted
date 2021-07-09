@@ -26,10 +26,11 @@ var reminders = {
   upcoming:[],
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
-    var all = await database.getAllReminders();
     //empty out the arrays
     reminders.today = [];
     reminders.upcoming = [];
+    
+    var all = await database.getAllReminders();
     //the unix time right now
     var currentTime = moment().format("X");
     //the unix time that the current day ends at
