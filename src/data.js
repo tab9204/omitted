@@ -3,7 +3,10 @@ import {Swiper} from "./swipe.js";
 
 //events for interacting with the UI
 var events = {
-  reminderSwipe: new Swiper(database.deleteReminder),
+  reminderSwipe: new Swiper(async (id) => {
+    database.deleteReminder(id);
+    await reminders.sort();
+  }),
   onRepeatClick: (e) =>{
     //get all the repeat buttons
     var allRepeatButtons = document.querySelectorAll(".repeatItem");
@@ -26,13 +29,15 @@ var reminders = {
   future: [],
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
-    //empty out the arrays
-    reminders.upcoming = [];
-    reminders.future = [];
 
     var all = await database.getAllReminders();
     //the unix time right now
     var now = moment.utc().format("X");
+
+    //empty out the arrays
+    reminders.upcoming = [];
+    reminders.future = [];
+
     //loop through all reminders
     for(var i = 0; i < all.length; i++){
       //the timestamp of the current reminder
@@ -101,20 +106,24 @@ var reminders = {
   }
 }
 
-//push notificaiton functionality
-var push = {
+//service worker functionality
+var worker = {
   //registraion after the service worker has been registered
   swRegistration: null,
   //registers the service worker
   registerWorker: async () =>{
     if ('serviceWorker' in navigator) {
       var registration = await navigator.serviceWorker.register('service-worker.js');
-      push.swRegistration = registration;
+      worker.swRegistration = registration;
       console.log("service worker registered");
     }
     else{
       console.log("Service Workers not supported");
     }
+  },
+  //registers periodic background sync
+  registerSync: async () =>{
+
   },
   //requests notification permissions
   requestPermissions: async () =>{
@@ -130,13 +139,13 @@ var push = {
   //subscribes the user to push
   subscribeUser: async (permission) =>{
     //check if there is an active push subscription
-    var subbed =  await push.swRegistration.pushManager.getSubscription();
+    var subbed =  await worker.swRegistration.pushManager.getSubscription();
     //if there is no push subscription and notification permissions have been granted
     if(!subbed && permission == "granted"){
       //convert the public key
       var publicKey = urlBase64ToUint8Array("BKd7x3X7jqttW_W2eFJPJQ9IrLlatDywpZffn4wZp8Pnuq8pOj9lWV5vxjm0d2XASC_3b-15G4ChcuB3bai9P-s");
       //subscribe the user to push notifications
-      var subscription = await push.swRegistration.pushManager.subscribe({userVisibleOnly: true,applicationServerKey: publicKey});
+      var subscription = await worker.swRegistration.pushManager.subscribe({userVisibleOnly: true,applicationServerKey: publicKey});
       //save the subscription to the db
       console.log("User subscribed to push notifications");
 
@@ -164,4 +173,4 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 
-export{events,reminders,push};
+export{events,reminders,worker};

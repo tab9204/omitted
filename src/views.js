@@ -1,5 +1,5 @@
 /*****app views****/
-import {events,reminders,push} from './data.js';
+import {events,reminders,worker} from './data.js';
 
 /************view components*************/
 
@@ -13,9 +13,9 @@ var header = {
         e.currentTarget.style.pointerEvents = "none";
         try{
           //request notifications permission
-          var permission = await push.requestPermissions();
+          var permission = await worker.requestPermissions();
           //try to subscribe the user to push notifications
-          var subscription = await push.subscribeUser(permission);
+          var subscription = await worker.subscribeUser(permission);
           //add the subscription to the db
           await database.saveUserSubscription(subscription);
         }
@@ -77,16 +77,6 @@ var repeatButtons = {
 
 //home screen
 var homeScreen = {
-  oninit: async () => {
-    try{
-      //sort the reminders in the db
-      await reminders.sort();
-      m.redraw();
-    }
-    catch (error){
-      console.log(error);
-    }
-  },
   view: (vnode)=>{
     return m("homeScreen.contentView",[
       m(header),
@@ -108,6 +98,30 @@ var homeScreen = {
           ])
         ])
       ])
+    ])
+  }
+}
+
+//loading screen to show while getting reminders from the db
+var loadingScreen = {
+  oninit: async () => {
+    try{
+      //sort the reminders in the db
+      await reminders.sort();
+      //show the homescreen after the reminders have been sorted
+      //wait at least a second before transitioning screens
+      setTimeout(function(){ window.location = "#!/home"; }, 1000);
+
+    }
+    catch (error){
+      //if there is an error sorting the reminders just show the homescreen
+      setTimeout(function(){ window.location = "#!/home"; }, 1000);
+    }
+  },
+  view: (vnode)=>{
+    return m("homeScreen.contentView",[
+      m(header),
+      m ("img.loading", {src:"./assets/loading.gif"})
     ])
   }
 }
@@ -144,7 +158,7 @@ var addScreen = {//add new reminder screen
                 //add the reminder to the db
                 await database.saveReminder(newReminder);
 
-                window.location = "#!/home";
+                window.location = "#!/loading";
               }
               catch (error){
                 alert(error);
@@ -187,4 +201,4 @@ var addScreen = {//add new reminder screen
 }
 
 
-export{homeScreen,addScreen};
+export{homeScreen,addScreen,loadingScreen};

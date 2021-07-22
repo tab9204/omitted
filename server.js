@@ -78,7 +78,7 @@ app.post('/saveUserSub', async (req,res) => {
 app.post('/saveReminder', async (req,res) => {
   try{
     //insert the new user and sub into the db
-    const result = await client.query(`insert into reminders (user_id, details) values (${req.body.user_id}, '${JSON.stringify(req.body.details)}')`);
+    const result = await client.query(`insert into reminders (user_id, details) values (${req.body.user_id}, '${JSON.stringify(req.body.details).replace(/[\/\(\)\']/g, "''")}')`);
     res.send(result);
   }
   catch (error){
@@ -98,20 +98,6 @@ app.post('/deleteReminder', async (req,res) => {
   catch (error){
     console.log(error);
     res.status("500").send({message: 'Reminder could not be deleted to the db'});
-  }
-
-});
-
-//updates an existing reminder in the db with new data for a specified user
-app.post('/updateReminder', async (req,res) => {
-  try{
-    //update the reminder
-    const result = await client.query(`update reminders set details = '${JSON.stringify(req.body.new_data)}' where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${req.body.reminder_id}'`);
-    res.send(result);
-  }
-  catch (error){
-    console.log(error);
-    res.status("500").send({message: 'Reminder could not be updated'});
   }
 
 });
@@ -171,7 +157,7 @@ cron.schedule('* * * * * ', async () => {
 
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
-          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
         //if the reminder is all day and it is coming up in less then a day
         else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified){
@@ -184,7 +170,7 @@ cron.schedule('* * * * * ', async () => {
 
           //set the reminder notifed to true and update the reminder db
           reminder.notified = true;
-          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
           console.log("reminder updated");
         }
 
@@ -229,7 +215,7 @@ async function cleanReminders(user_id){
         offset: reminders[i].details.offset,
         notified: false
       }
-      const result = await client.query(`update reminders set details = '${JSON.stringify(updated)}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
+      const result = await client.query(`update reminders set details = '${JSON.stringify(updated).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
     }
     //otherwise if the reminder is in the past and does not repeat
     else if(reminderTime <= now && reminderRepeat == "Never"){

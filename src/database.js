@@ -89,23 +89,6 @@ var database = {
   if(!response.ok){ throw "Reminder could not be deleted from the db";}
   else{console.log("Reminder deleted from db");}
  },
- //updates the specified reminder with new data
- updateReminder: async (reminderID,newData)=>{
-   //get the user id and the reminder details
-   var update = {"user_id":database.user_id,"reminder_id":reminderID, "new_data": newData};
-   //send new reminder to the server
-   var response = await fetch("/updateReminder", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body:JSON.stringify(update)
-  });
-
-  //if the response contains an error the subscription was not updated properly
-  if(!response.ok){ throw "Reminder could not be updated";}
-  else{console.log("Reminder updated");}
- },
  //saves the user and the user's push subcription to the db
  saveUserSubscription: async(subscription) => {
    //get the user_id and the push subscription

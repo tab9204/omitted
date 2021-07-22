@@ -1,11 +1,12 @@
-import {homeScreen,addScreen} from './views.js';
-import {push,reminders} from './data.js';
+import {homeScreen,addScreen,loadingScreen} from './views.js';
+import {worker,reminders} from './data.js';
 
 window.onload = async () =>{
-  window.location = "#!/home";//start the app on the main screen
+  //start the app on the main screen
+  window.location = "#!/loading";
 
   //register the service worker
-  await push.registerWorker();
+  await worker.registerWorker();
 
   //initalize the database user
   await database.initUser();
@@ -14,6 +15,7 @@ window.onload = async () =>{
 
   m.route(root, "/home",{
     "/home": homeScreen,
+    "/loading": loadingScreen,
     "/add": addScreen,
   })
 

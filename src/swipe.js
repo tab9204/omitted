@@ -11,6 +11,7 @@ class Swiper {
     e.currentTarget.classList.remove("slideIn");
   }
   async moveTouch(e) {
+    
     if (this.initialX === null) {
       return;
     }
@@ -34,10 +35,11 @@ class Swiper {
         else{
           e.currentTarget.classList.add("slideOut");
 
-          await this.onSwipe(e.currentTarget.id);
-
           this.initialX = null;
           this.initialY = null;
+
+          await this.onSwipe(e.currentTarget.id);
+
         }
         this.initialX = currentX;
       } else {
