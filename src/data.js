@@ -34,9 +34,9 @@ var reminders = {
     //the unix time right now
     var now = moment.utc().format("X");
 
-    //empty out the arrays
-    reminders.upcoming = [];
-    reminders.future = [];
+    //stores the new reminders
+    var newUpcoming = [];
+    var newFuture = [];
 
     //loop through all reminders
     for(var i = 0; i < all.length; i++){
@@ -45,17 +45,22 @@ var reminders = {
       //if the reminder time is 24 hours or less from right now show the reminder as upcoming
       if(reminderTime - now <= 86399 && reminderTime - now >= 0){
         //add this reminder to todays reminders
-        reminders.upcoming.push(all[i].details);
+        newUpcoming.push(all[i].details);
       }
       //if the reminder time is greater then 24 hours from now show it as a future reminder
       else if(reminderTime - now > 86400){
         //add this reminder to upcoming reminders
-        reminders.future.push(all[i].details);
+        newFuture.push(all[i].details);
       }
     }
     //sort the arrays based on timestamp in acending order
-    reminders.upcoming.sort((a,b) => a.timeStamp - b.timeStamp);
-    reminders.future.sort((a,b) => a.timeStamp - b.timeStamp);
+    newUpcoming.sort((a,b) => a.timeStamp - b.timeStamp);
+    newFuture.sort((a,b) => a.timeStamp - b.timeStamp);
+
+    //update the existing arrays with the new reminders
+    //empty out the arrays
+    reminders.upcoming = newUpcoming;
+    reminders.future = newFuture;
   },
   //validates reminder inputs and returns all data needed for reminder
   gatherReminderData: () =>{
