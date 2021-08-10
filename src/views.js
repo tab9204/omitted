@@ -7,6 +7,7 @@ import {events,reminders,worker} from './data.js';
 var header = {
   view: ()=>{
     return m(".header",[
+      m("img.miniLoading", {src:"./assets/loading.gif"}),
       m("div", "Remind Me"),
       m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
         //disable this click event to prevent double clicks
@@ -77,6 +78,10 @@ var repeatButtons = {
 
 //home screen
 var homeScreen = {
+  oncreate: () =>{
+    //set up the refresh event handler
+    events.refreshSwipe();
+  },
   view: (vnode)=>{
     return m("homeScreen.contentView",[
       m(header),
@@ -119,9 +124,11 @@ var loadingScreen = {
     }
   },
   view: (vnode)=>{
-    return m("homeScreen.contentView",[
+    return m("loadingScreen.contentView",[
       m(header),
-      m ("img.loading", {src:"./assets/loading.gif"})
+      m(".pageContent",[
+        m ("img.loading", {src:"./assets/loading.gif"})
+      ])
     ])
   }
 }

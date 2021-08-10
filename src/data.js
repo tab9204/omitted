@@ -3,10 +3,12 @@ import {Swiper} from "./swipe.js";
 
 //events for interacting with the UI
 var events = {
+  //when a reminder is swiped
   reminderSwipe: new Swiper(async (id) => {
     database.deleteReminder(id);
     await reminders.sort();
   }),
+  //when a repeat button is clicked
   onRepeatClick: (e) =>{
     //get all the repeat buttons
     var allRepeatButtons = document.querySelectorAll(".repeatItem");
@@ -17,6 +19,77 @@ var events = {
     });
     //add selected class to the clicked button
     e.target.classList.add("selected");
+  },
+  refreshSwiping: false,
+  //when the app is swiped for refresh
+  refreshSwipe: () =>{
+    //the Y postion when the user firsts presses down
+    var startY;
+    //The Y position when the container has been screen to its top position
+    var topStartY = 0;
+    //how many px the user has swiped down since reaching the top of the container
+    var deltaY = 0;
+    //the part of the screen listening to the swipe events
+    var appScreen =  document.querySelector(".pageContent");
+    var loadingIcon = document.querySelector(".miniLoading");
+
+    //how many px the screen must be dragged before the refresh is activated
+    var buffer = screen.height * .2;
+
+
+    appScreen.addEventListener('touchstart', (e)=>{
+      //set the startY
+      startY = e.touches[0].pageY;
+
+      loadingIcon.style.top = "-45px";
+      loadingIcon.classList.remove("slideUp");
+
+    }, {passive: true});
+
+    appScreen.addEventListener('touchmove', e => {
+      if(events.reminderSwipe.swiping){
+        return;
+      }
+
+      events.refreshSwiping = true;
+
+      var y = e.touches[0].pageY;
+
+      //if the container is at the top of its scroll and the user is swiping down
+      if (appScreen.scrollTop === 0 && y > startY) {
+
+
+        appScreen.style.overflowY = "clip";
+        //set the starting top Y if it has not already been set
+        if(topStartY <= 0){
+          topStartY = y;
+        }
+        //how many px the use has swiped down since reaching the top of the container
+        deltaY = y - topStartY;
+
+        if(deltaY <= buffer){
+          console.log(deltaY);
+          loadingIcon.style.top = (-45 + deltaY)+"px";
+        }
+    }
+  }, {passive: false});
+
+  appScreen.addEventListener('touchend', e => {
+
+    events.refreshSwiping = false;
+
+    topStartY = 0;
+
+    loadingIcon.classList.add("slideUp");
+
+    appScreen.style.overflowY = "scroll";
+
+    if(deltaY >= buffer){
+      window.location = "#!/loading";
+    }
+
+  },{passive: true});
+
   }
 }
 

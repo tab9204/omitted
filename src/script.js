@@ -11,6 +11,7 @@ window.onload = async () =>{
   //initalize the database user
   await database.initUser();
 
+
   var root = document.body.children[0];
 
   m.route(root, "/home",{

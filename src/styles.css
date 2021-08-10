@@ -1,14 +1,15 @@
 /*General styles*/
-body{margin: 0px; font-family: 'Work Sans', sans-serif;}
+body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: contain;}
   .hidden{display:none !important;}
 
 #appRoot{height: 100%; position: relative;}
-  .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0;}
+  .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0; background: #E8EAEE;}
     .header{font-size: 2em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between;}
       .header img{align-self: center;}
+      .miniLoading{position: absolute; left: 50%; transform: translateX(-50%); border: .5px solid #d6d6d6; z-index: 2; background: white; border-radius: 40px; width: 40px; top: -45px;}
       .backBtn{position: absolute; width: 45px;}
       .header .savedNavIcon{position: absolute; left:5px;}
-    .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll;}
+    .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll; background: white; top:0px;}
       .pageContent .pageSection{margin: 10px 10px 10px 10px;}
         .sectionHeader{font-size: 1.5em; margin-bottom: 10px;}
 
@@ -72,6 +73,12 @@ input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transfo
 @keyframes slideOut {
   to {left: -480px; display: none;}
 }
+
+.slideUp{animation: slideUp 0.5s; animation-fill-mode: forwards;}
+@keyframes slideUp {
+  to {top: -45px;}
+}
+
 
 /*font styles*/
 /* vietnamese */

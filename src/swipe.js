@@ -1,9 +1,11 @@
+import {events} from './data.js';
 //onSwipe => function to run on swipe
 class Swiper {
   constructor(onSwipe) {
     this.initialX = null;
     this.initialY = null;
     this.onSwipe = onSwipe;
+    this.swiping = false;
   }
   startTouch(e) {
     this.initialX = e.touches[0].clientX;
@@ -11,11 +13,14 @@ class Swiper {
     e.currentTarget.classList.remove("slideIn");
   }
   async moveTouch(e) {
-    
+
     if (this.initialX === null) {
       return;
     }
     if (this.initialY === null) {
+      return;
+    }
+    if(events.refreshSwiping){
       return;
     }
 
@@ -27,6 +32,7 @@ class Swiper {
     if (Math.abs(diffX) > Math.abs(diffY)) {
       // sliding horizontally
       if (diffX > 0) {
+        this.swiping = true;
         // swiped left
         var currentPos = e.currentTarget.style.left == "" ? 0 : e.currentTarget.style.left;
         if(parseInt(currentPos) >= -200){
@@ -55,6 +61,7 @@ class Swiper {
     e.preventDefault();
   }
   endTouch(e) {
+    this.swiping = false;
     e.currentTarget.classList.add("slideIn");
     e.currentTarget.style.left = "0px";
   }
