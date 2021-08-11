@@ -44,7 +44,7 @@ class Swiper {
           this.initialX = null;
           this.initialY = null;
 
-          await this.onSwipe(e.currentTarget.id);
+          await this.onSwipe(e.currentTarget.id, e.currentTarget.getAttribute("index"));
 
         }
         this.initialX = currentX;

@@ -4,9 +4,11 @@ import {Swiper} from "./swipe.js";
 //events for interacting with the UI
 var events = {
   //when a reminder is swiped
-  reminderSwipe: new Swiper(async (id) => {
+  reminderSwipe: new Swiper(async (id,index) => {
+    //remove the reminder from the db
     database.deleteReminder(id);
-    await reminders.sort();
+    //remove the reminder from the local reminders array
+    reminders.all.splice(parseInt(index),1);
   }),
   //when a repeat button is clicked
   onRepeatClick: (e) =>{
@@ -96,10 +98,8 @@ var events = {
 
 ////data and functionality for related to reminders
 var reminders = {
-  //reminders coming withing 24 hours
-  upcoming:[],
-  //reminders further then 24 hours away
-  future: [],
+  //all reminders for the user
+  all:[],
   //sorts all reminders into either today or upcoming
   sort: async ()=>{
 
@@ -108,32 +108,20 @@ var reminders = {
     var now = moment.utc().format("X");
 
     //stores the new reminders
-    var newUpcoming = [];
-    var newFuture = [];
+    var newAll = [];
 
     //loop through all reminders
-    for(var i = 0; i < all.length; i++){
-      //the timestamp of the current reminder
-      var reminderTime = all[i].details.timeStamp;
-      //if the reminder time is 24 hours or less from right now show the reminder as upcoming
-      if(reminderTime - now <= 86399 && reminderTime - now >= 0){
-        //add this reminder to todays reminders
-        newUpcoming.push(all[i].details);
-      }
-      //if the reminder time is greater then 24 hours from now show it as a future reminder
-      else if(reminderTime - now > 86400){
-        //add this reminder to upcoming reminders
-        newFuture.push(all[i].details);
-      }
+    for(var i = 0; i < all.length; i++){;
+      //add the reminder to the array
+      newAll.push(all[i].details);
+
     }
     //sort the arrays based on timestamp in acending order
-    newUpcoming.sort((a,b) => a.timeStamp - b.timeStamp);
-    newFuture.sort((a,b) => a.timeStamp - b.timeStamp);
+    newAll.sort((a,b) => a.timeStamp - b.timeStamp);
 
-    //update the existing arrays with the new reminders
-    //empty out the arrays
-    reminders.upcoming = newUpcoming;
-    reminders.future = newFuture;
+
+    //update the existing array with the new reminders
+    reminders.all = newAll;
   },
   //validates reminder inputs and returns all data needed for reminder
   gatherReminderData: () =>{

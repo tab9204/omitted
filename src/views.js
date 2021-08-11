@@ -19,6 +19,7 @@ var header = {
           var subscription = await worker.subscribeUser(permission);
           //add the subscription to the db
           await database.saveUserSubscription(subscription);
+
         }
         catch(error){
           console.log(error);
@@ -35,14 +36,16 @@ var reminder = {
   view: (vnode) => {
     return m(".reminder",{
       id:vnode.attrs.reminder.reminder_id,//attach the id of the reminder to the id html attriute
+      index: vnode.attrs.index,//the position of the reminder within the reminder array
       //add touch events
       ontouchstart:(e)=>{events.reminderSwipe.startTouch(e)},
       ontouchmove:(e)=>{events.reminderSwipe.moveTouch(e)},
       ontouchend:(e)=>{events.reminderSwipe.endTouch(e)},
       //animation end event for when the slide out animation finishes
-      onanimationend: (e)=>{
+      onanimationend: async (e)=>{
+        //remove the element from the dom once the slide out is finished
         if(e.target.classList.contains("slideOut")){
-          e.target.classList.add("hidden");
+         e.currentTarget.remove();
         }
       }
     },[
@@ -87,18 +90,10 @@ var homeScreen = {
       m(header),
       m(".pageContent",[
         m(".pageSection", [//todays reminders section
-          m(".sectionHeader","Upcoming reminders"),
+          m(".sectionHeader", moment().format("ddd, MMM DD YYYY")),
           m(".reminderList",[
-            reminders.upcoming.map((current) => {//loop through and display reminders sorted for today
-              return m(reminder, {reminder: current})
-            })
-          ])
-        ]),
-        m(".pageSection", [//upcoming reminders section
-          m(".sectionHeader","Future reminders"),
-          m(".reminderList",[
-            reminders.future.map((current) => {//loop through and dispay reminders sorted for upcoming
-              return m(reminder, {reminder: current})
+            reminders.all.map((current, i) => {//loop through and display reminders sorted for today
+              return m(reminder, {reminder: current, key:current.reminder_id, index: i})
             })
           ])
         ])
