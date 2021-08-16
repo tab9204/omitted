@@ -106,7 +106,7 @@ app.post('/deleteReminder', async (req,res) => {
 app.post('/getAllReminders', async (req,res) => {
   try{
     //first clean the users reminders so we return the most up to date reminders to the client
-    await cleanReminders(req.body.user_id);
+   await cleanReminders(req.body.user_id);
     //get all reminder details for the user
     const result = await client.query(`select details from reminders where user_id = ${req.body.user_id}`);
     res.send(result.rows);
