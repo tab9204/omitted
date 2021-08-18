@@ -8,7 +8,7 @@ var header = {
   view: ()=>{
     return m(".header",[
       m("img.miniLoading", {src:"./assets/loading.gif"}),
-      m("div", "Remind Me"),
+      m("div", moment().format("ddd, MMM DD YYYY")),
       m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
         //disable this click event to prevent double clicks
         e.currentTarget.style.pointerEvents = "none";
@@ -90,7 +90,7 @@ var homeScreen = {
       m(header),
       m(".pageContent",[
         m(".pageSection", [//todays reminders section
-          m(".sectionHeader", moment().format("ddd, MMM DD YYYY")),
+        //  m(".sectionHeader", moment().format("ddd, MMM DD YYYY")),
           m(".reminderList",[
             reminders.all.map((current, i) => {//loop through and display reminders sorted for today
               return m(reminder, {reminder: current, key:current.reminder_id, index: i})
