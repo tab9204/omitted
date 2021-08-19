@@ -7,8 +7,6 @@ var events = {
   reminderSwipe: new Swiper(async (id,index) => {
     //remove the reminder from the db
     database.deleteReminder(id);
-    //remove the reminder from the local reminders array
-    reminders.all.splice(parseInt(index),1);
   }),
   //when a repeat button is clicked
   onRepeatClick: (e) =>{

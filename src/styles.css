@@ -5,7 +5,7 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: c
 
 #appRoot{height: 100%; position: relative;}
   .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0; background: #E8EAEE;}
-    .header{font-size: 1.5em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between;}
+    .header{font-size: 1.5em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between; min-height: 30px;}
       .header img{align-self: center;}
       .miniLoading{position: absolute; left: 50%; transform: translateX(-50%); border: .5px solid #d6d6d6; z-index: 2; background: white; border-radius: 40px; width: 40px; top: -45px;}
       .backBtn{position: absolute; width: 45px;}
@@ -31,7 +31,7 @@ input:focus{outline: none;}
   .selected{background: #4D77BE; color: white;}
 
 .navigation{display: flex; justify-content: space-between;}
-  .exit,.add{width: 28px; height: 28px;}
+  .exit,.add{width: 30px; height: 30px;}
 
 .allDay{display: flex; justify-content: space-between; font-size:1.3em;}
 
@@ -66,13 +66,13 @@ input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transfo
 
 
 /*Animations*/
-.slideIn{animation: slideIn 0.75s; animation-fill-mode: forwards;}
+.slideIn{animation: slideIn .75s; animation-fill-mode: forwards;}
 @keyframes slideIn {
   to {left: 0}
 }
-.slideOut{animation: slideOut 0.5s; animation-fill-mode: forwards;}
+.slideOut{animation: slideOut .75s; animation-fill-mode: forwards;}
 @keyframes slideOut {
-  to {left: -480px; display: none;}
+  to {left: -480px;}
 }
 
 .slideUp{animation: slideUp 0.5s; animation-fill-mode: forwards;}

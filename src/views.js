@@ -9,7 +9,9 @@ var header = {
     return m(".header",[
       m("img.miniLoading", {src:"./assets/loading.gif"}),
       m("div", moment().format("ddd, MMM DD YYYY")),
-      m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
+      m("img.add",{class: window.location.hash == "#!/loading" ? "hidden" : "", src:"./assets/plus.png", onclick: async (e) => {
+        //add a short vibration when the button is pressed for feedback
+        window.navigator.vibrate(5);
         //disable this click event to prevent double clicks
         e.currentTarget.style.pointerEvents = "none";
         try{
@@ -43,9 +45,20 @@ var reminder = {
       ontouchend:(e)=>{events.reminderSwipe.endTouch(e)},
       //animation end event for when the slide out animation finishes
       onanimationend: async (e)=>{
-        //remove the element from the dom once the slide out is finished
+        //if the animation that ended was the slide out
         if(e.target.classList.contains("slideOut")){
+          //remove the reminder from the dom
          e.currentTarget.remove();
+         //remove the reminder from the local reminders array
+         var index = parseInt(e.currentTarget.getAttribute("index"));
+         reminders.all.splice(parseInt(index),1);
+        }
+        //if the animation that ended was the slide in
+        else if(e.target.classList.contains("slideIn")){
+          //set the reminder left style back to the default 0px
+          e.currentTarget.style.left = "0px";
+          //remove the slideIn class from the reminder
+          e.target.classList.remove("slideIn");
         }
       }
     },[
@@ -150,7 +163,7 @@ var addScreen = {//add new reminder screen
       m(".pageContent",[
         m(".pageSection", [//navigation section
           m(".navigation",[
-            m("img.exit",{src:"./assets/x.png", onclick: ()=>{  window.location = "#!/home";}}),
+            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}}),
             m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
               //disable this click event to prevent double clicks
               e.currentTarget.style.pointerEvents = "none";
@@ -159,6 +172,9 @@ var addScreen = {//add new reminder screen
                 var newReminder = reminders.gatherReminderData();
                 //add the reminder to the db
                 await database.saveReminder(newReminder);
+
+                //add a short vibration when the button is pressed for feedback
+                window.navigator.vibrate(5);
 
                 window.location = "#!/loading";
               }
