@@ -3,9 +3,9 @@
   "name": "omitted (from my brain)",
   "icons": [
     {
-      "src": "assets/loading.gif",
+      "src": "assets/splash.png",
       "sizes": "192x192",
-      "type": "image/jpg"
+      "type": "image/png"
     }
   ],
   "background_color": "#4D77BE",
