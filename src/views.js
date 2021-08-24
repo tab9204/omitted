@@ -1,5 +1,7 @@
 /*****app views****/
 import {events,reminders,worker} from './data.js';
+import {database} from './database.js';
+import "../libraries/flatpickr.js";
 
 /************view components*************/
 

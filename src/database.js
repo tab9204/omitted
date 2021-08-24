@@ -1,14 +1,16 @@
-/*********database functions********/
-var database = {
-  //the local reminders db
+import "../libraries/pouchdb-7.2.1.js";
+
+/*********database functionality********/
+//local DB using pouch
+//used to store the user's ID
+var pouchDB = {
+  //create a local db
   local: new PouchDB('reminders'),
-  //unique identifier assigned to the user
-  user_id: null,
-  //creates the user_id for the current user
+  //creates a user ID and adds it to the local db or gets an ID if one exists
   initUser: async () =>{
     try{
       //check the local db for a stored user code
-      var result =  await database.local.get("_local/user");
+      var result =  await pouchDB.local.get("_local/user");
       //assigned the returned id to the user_id variable
       database.user_id = result.user_id;
       console.log("user ID already exists: " + database.user_id);
@@ -20,7 +22,7 @@ var database = {
         var random = (Math.floor(Math.random() * 100) * Date.now());
         try{
           //add the new user id to the local db
-          var localUser = await database.local.put({"_id": "_local/user", "user_id": random});
+          var localUser = await pouchDB.local.put({"_id": "_local/user", "user_id": random});
           database.user_id = random;
           console.log("user ID created: " + random);
         }
@@ -33,7 +35,12 @@ var database = {
         console.log(error);
       }
     }
-  },
+  }
+}
+
+var database = {
+  //unique identifier assigned to the user
+  user_id: null,
  //gets all reminders for the user from the db
  getAllReminders: async () =>{
    //request reminders from the server
@@ -106,3 +113,5 @@ var database = {
 
  }
 }
+
+export{pouchDB,database};

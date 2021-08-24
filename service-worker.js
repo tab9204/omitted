@@ -1,4 +1,5 @@
 var cacheName = 'offlineCache-v6';
+
 var contentToCache = [
   './manifest.json'
 ];
@@ -35,6 +36,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+//push notification event
 self.addEventListener('push', event => {
   const data = event.data.json();
   console.log("recieved push notification");

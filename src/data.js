@@ -1,5 +1,7 @@
 /**********Data for rendering app views************/
 import {Swiper} from "./swipe.js";
+import {database} from './database.js';
+
 
 //events for interacting with the UI
 var events = {
@@ -8,6 +10,17 @@ var events = {
     //remove the reminder from the db
     database.deleteReminder(id);
   }),
+  //when the visibility has changed
+  appOpen: () =>{
+    document.addEventListener('visibilitychange', async (e) =>{
+      //if the app is being opened up
+      if(document.visibilityState == "visible"){
+        //sort the remindrs and reload the view
+        await reminders.sort();
+        m.redraw();
+      }
+    });
+  },
   //when a repeat button is clicked
   onRepeatClick: (e) =>{
     //get all the repeat buttons
@@ -94,16 +107,14 @@ var events = {
 }
 
 
-////data and functionality for related to reminders
+//data and functionality for related to reminders
 var reminders = {
   //all reminders for the user
   all:[],
-  //sorts all reminders into either today or upcoming
+  //gets all reminders and then sorts them from soonest to latest
   sort: async ()=>{
 
     var all = await database.getAllReminders();
-    //the unix time right now
-    var now = moment.utc().format("X");
 
     //stores the new reminders
     var newAll = [];
@@ -177,17 +188,16 @@ var worker = {
   //registers the service worker
   registerWorker: async () =>{
     if ('serviceWorker' in navigator) {
-      var registration = await navigator.serviceWorker.register('service-worker.js');
+      var registration = await navigator.serviceWorker.register('service-worker.js', {type: 'module'});
       worker.swRegistration = registration;
       console.log("service worker registered");
+      //if the registration has been changed update it
+        worker.swRegistration.update();
+
     }
     else{
       console.log("Service Workers not supported");
     }
-  },
-  //registers periodic background sync
-  registerSync: async () =>{
-
   },
   //requests notification permissions
   requestPermissions: async () =>{

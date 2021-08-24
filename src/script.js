@@ -1,5 +1,7 @@
 import {homeScreen,addScreen,loadingScreen} from './views.js';
-import {worker,reminders} from './data.js';
+import {worker,reminders,events} from './data.js';
+import {pouchDB} from './database.js';
+import "../libraries/mithril.min.js";
 
 window.onload = async () =>{
   //start the app on the main screen
@@ -9,8 +11,9 @@ window.onload = async () =>{
   await worker.registerWorker();
 
   //initalize the database user
-  await database.initUser();
+  await pouchDB.initUser();
 
+  events.appOpen();
 
   var root = document.body.children[0];
 

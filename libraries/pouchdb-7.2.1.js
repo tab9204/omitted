@@ -1,5 +1,5 @@
 // PouchDB 7.2.1
-// 
+//
 // (c) 2012-2020 Dale Harvey and the PouchDB team
 // PouchDB may be freely distributed under the Apache license, version 2.0.
 // For all details and documentation:
@@ -1614,7 +1614,7 @@ function bytesToUuid(buf, offset) {
   var i = offset || 0;
   var bth = byteToHex;
   // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-  return ([bth[buf[i++]], bth[buf[i++]], 
+  return ([bth[buf[i++]], bth[buf[i++]],
 	bth[buf[i++]], bth[buf[i++]], '-',
 	bth[buf[i++]], bth[buf[i++]], '-',
 	bth[buf[i++]], bth[buf[i++]], '-',
@@ -5271,7 +5271,7 @@ function padLeft(str, padWith, upToLength) {
 
 var MIN_MAGNITUDE = -324; // verified by -Number.MIN_VALUE
 var MAGNITUDE_DIGITS = 3; // ditto
-var SEP = ''; // set to '_' for easier debugging 
+var SEP = ''; // set to '_' for easier debugging
 
 function collate(a, b) {
 
@@ -7230,7 +7230,7 @@ function getAll(objectStore, keyRange, onSuccess) {
 }
 
 function allDocsKeys(keys, docStore, onBatch) {
-  // It's not guaranted to be returned in right order  
+  // It's not guaranted to be returned in right order
   var valuesBatch = new Array(keys.length);
   var count = 0;
   keys.forEach(function (key, index) {
@@ -7281,17 +7281,17 @@ function idbAllDocs(opts, idb, callback) {
   var start = 'startkey' in opts ? opts.startkey : false;
   var end = 'endkey' in opts ? opts.endkey : false;
   var key = 'key' in opts ? opts.key : false;
-  var keys = 'keys' in opts ? opts.keys : false; 
+  var keys = 'keys' in opts ? opts.keys : false;
   var skip = opts.skip || 0;
   var limit = typeof opts.limit === 'number' ? opts.limit : -1;
   var inclusiveEnd = opts.inclusive_end !== false;
 
-  var keyRange ; 
+  var keyRange ;
   var keyRangeError;
   if (!keys) {
     keyRange = createKeyRange(start, end, inclusiveEnd, key, opts.descending);
     keyRangeError = keyRange && keyRange.error;
-    if (keyRangeError && 
+    if (keyRangeError &&
       !(keyRangeError.name === "DataError" && keyRangeError.code === 0)) {
       // DataError with error code 0 indicates start is less than end, so
       // can just do an empty query. Else need to throw
@@ -7326,7 +7326,7 @@ function idbAllDocs(opts, idb, callback) {
 
   /* istanbul ignore if */
   if (opts.update_seq) {
-    getMaxUpdateSeq(seqStore, function (e) { 
+    getMaxUpdateSeq(seqStore, function (e) {
       if (e.target.result && e.target.result.length > 0) {
         updateSeq = e.target.result[0];
       }
@@ -7339,7 +7339,7 @@ function idbAllDocs(opts, idb, callback) {
       var maxKey = undefined;
       if (cursor && cursor.key) {
         maxKey = cursor.key;
-      } 
+      }
       return onSuccess({
         target: {
           result: [maxKey]
@@ -7430,7 +7430,7 @@ function idbAllDocs(opts, idb, callback) {
       offset: opts.skip,
       rows: results
     };
-    
+
     /* istanbul ignore if */
     if (opts.update_seq && updateSeq !== undefined) {
       returnVal.update_seq = updateSeq;
@@ -11514,7 +11514,7 @@ function replicate(src, target, opts, returnValue, result) {
         throw new Error('cancelled');
       }
 
-      // `res` doesn't include full documents (which live in `docs`), so we create a map of 
+      // `res` doesn't include full documents (which live in `docs`), so we create a map of
       // (id -> error), and check for errors while iterating over `docs`
       var errorsById = Object.create(null);
       res.forEach(function (res) {
