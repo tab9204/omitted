@@ -1,4 +1,4 @@
-import {database,pouchDB} from './src/database.js';
+//import {database,pouchDB} from './src/database.js';
 
 var cacheName = 'offlineCache-v6';
 
@@ -46,6 +46,7 @@ self.addEventListener('push', event => {
 });
 
 
+/*
 self.addEventListener('pushsubscriptionchange', function(event) {
   var update = async (event) =>{
     var user_id =  await pouchDB.local.get("_local/user");
@@ -56,4 +57,4 @@ self.addEventListener('pushsubscriptionchange', function(event) {
   }
 
   event.waitUntil(update());
-});
+});*/

@@ -191,6 +191,7 @@ cron.schedule('* * * * * ', async () => {
             title: "Don't forget this today!",
             body: reminder.title
           });
+          console.log("sending notification");
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
 
