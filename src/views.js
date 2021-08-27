@@ -22,7 +22,7 @@ var header = {
           //try to subscribe the user to push notifications
           var subscription = await worker.subscribeUser(permission);
           //add the subscription to the db
-          await database.saveUserSubscription(subscription);
+          await database.saveUserSubscription(subscription,database.user_id);
 
         }
         catch(error){

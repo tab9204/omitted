@@ -97,21 +97,21 @@ var database = {
   else{console.log("Reminder deleted from db");}
  },
  //saves the user and the user's push subcription to the db
- saveUserSubscription: async(subscription) => {
-   //get the user_id and the push subscription
-   var save = {"user_id":database.user_id,"sub":subscription};
-   //send new user data to the server
-   var response = await fetch("/saveUserSub", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body:JSON.stringify(save)
-  });
-  //if the response contains an error the subscription was not saved properly
-  if(!response.ok){throw "Could not save user push subscription";}
+ saveUserSubscription: async(subscription,user_id) => {
+     //get the user_id and the push subscription
+     var save = {"user_id":user_id,"sub":subscription};
+     //send new user data to the server
+     var response = await fetch("/saveUserSub", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(save)
+    });
+    //if the response contains an error the subscription was not saved properly
+    if(!response.ok){throw "Could not save user push subscription";}
 
- }
+  }
 }
 
 export{pouchDB,database};

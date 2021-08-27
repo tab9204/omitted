@@ -1,3 +1,5 @@
+import {database,pouchDB} from './src/database.js';
+
 var cacheName = 'offlineCache-v6';
 
 var contentToCache = [
@@ -41,4 +43,16 @@ self.addEventListener('push', event => {
   const data = event.data.json();
   console.log("recieved push notification");
   event.waitUntil(self.registration.showNotification(data.title, {body: data.body}));
+});
+
+self.addEventListener('pushsubscriptionchange', function(event) {
+  var update = async (event) =>{
+    var user_id =  await pouchDB.local.get("_local/user");
+
+    var subscription = await self.registration.pushManager.subscribe(event.oldSubscription.options);
+
+    return await database.saveUserSubscription(subscription,user_id);
+  }
+
+  event.waitUntil(update());
 });

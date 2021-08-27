@@ -10,7 +10,7 @@ var events = {
     //remove the reminder from the db
     database.deleteReminder(id);
   }),
-  //when the visibility has changed
+  //on visibility change
   appOpen: () =>{
     document.addEventListener('visibilitychange', async (e) =>{
       //if the app is being opened up

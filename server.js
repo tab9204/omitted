@@ -60,16 +60,41 @@ app.get("/service-worker.js",(req,res) =>{
     res.sendFile(__dirname + '/service-worker.js');
 });
 
-//adds a new user to the db
+//adds a new user to the db pr updates an existing
 app.post('/saveUserSub', async (req,res) => {
   try{
-    //insert the new user and sub into the db
-    const result = await client.query(`insert into users (user_id, sub) values (${req.body.user_id}, '${JSON.stringify(req.body.sub)}')`);
-    res.send("User subscription saved");
+    //check if the user already has a sub in the DB
+    const existing = await client.query(`select * from users where user_id = ${req.body.user_id}`);
+
+    if(existing.rows.length > 0){
+      const result = await client.query(`update users set sub = '${JSON.stringify(req.body.sub)}' where user_id = ${req.body.user_id}`);
+      res.send("User subscription updated");
+    }
+    //no user sub in the DB so add a new one
+    else{
+      //insert the new user and sub into the db
+      const result = await client.query(`insert into users (user_id, sub) values (${req.body.user_id}, '${JSON.stringify(req.body.sub)}')`);
+      res.send("User subscription saved");
+    }
+
   }
   catch (error){
     console.log(error);
     res.status("500").send({message: 'User subscription failed to save to db'});
+  }
+
+});
+
+//updates an existing but expired user sub with a new one
+app.post('/updateUserSub', async (req,res) => {
+  try{
+    //insert the new user and sub into the db
+    const result = await client.query(`update users set sub = '${JSON.stringify(req.body.sub)}' where user_id = ${req.body.user_id}`);
+    res.send("User subscription updated");
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'User subscription failed to update'});
   }
 
 });
