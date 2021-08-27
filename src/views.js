@@ -11,7 +11,6 @@ var header = {
     return m(".header",[
       m("img.miniLoading", {src:"./assets/loading.gif"}),
       m("div", moment().format("ddd, MMM DD YYYY")),
-      m("img.add", {src:"./assets/forward.png",onclick: async (e) => {await pouchDB.recoverUser()}}),
       m("img.add",{class: window.location.hash == "#!/loading" ? "hidden" : "", src:"./assets/plus.png", onclick: async (e) => {
         //add a short vibration when the button is pressed for feedback
         window.navigator.vibrate(5);
