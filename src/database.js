@@ -35,6 +35,12 @@ var pouchDB = {
         console.log(error);
       }
     }
+  },
+  recoverUser: async () =>{
+    var user = await pouchDB.local.get("_local/user");
+    user.user_id = 56863104121215;
+    var reset = await pouchDB.local.put(user);
+    console.log("user reset");
   }
 }
 

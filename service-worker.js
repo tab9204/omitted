@@ -45,6 +45,7 @@ self.addEventListener('push', event => {
   event.waitUntil(self.registration.showNotification(data.title, {body: data.body}));
 });
 
+
 self.addEventListener('pushsubscriptionchange', function(event) {
   var update = async (event) =>{
     var user_id =  await pouchDB.local.get("_local/user");

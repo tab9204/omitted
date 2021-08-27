@@ -177,6 +177,7 @@ cron.schedule('* * * * * ', async () => {
             title: 'You have a reminder coming up!',
             body: reminder.title
           });
+          console.log("sending notification");
           //send push notification
           webPush.sendNotification(subscription, payload).catch(error => console.error(error));
 

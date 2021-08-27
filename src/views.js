@@ -1,6 +1,6 @@
 /*****app views****/
 import {events,reminders,worker} from './data.js';
-import {database} from './database.js';
+import {database,pouchDB} from './database.js';
 import "../libraries/flatpickr.js";
 
 /************view components*************/
@@ -11,6 +11,7 @@ var header = {
     return m(".header",[
       m("img.miniLoading", {src:"./assets/loading.gif"}),
       m("div", moment().format("ddd, MMM DD YYYY")),
+      m("img.add", {src:"./assets/forward.png",onclick: async (e) => {await pouchDB.recoverUser()}}),
       m("img.add",{class: window.location.hash == "#!/loading" ? "hidden" : "", src:"./assets/plus.png", onclick: async (e) => {
         //add a short vibration when the button is pressed for feedback
         window.navigator.vibrate(5);
