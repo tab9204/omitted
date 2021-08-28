@@ -188,11 +188,11 @@ var worker = {
   //registers the service worker
   registerWorker: async () =>{
     if ('serviceWorker' in navigator) {
-      var registration = await navigator.serviceWorker.register('service-worker.js', {type: 'module'});
+      var registration = await navigator.serviceWorker.register('service-worker.js');
       worker.swRegistration = registration;
       console.log("service worker registered");
       //if the registration has been changed update it
-        worker.swRegistration.update();
+      worker.swRegistration.update();
 
     }
     else{

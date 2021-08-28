@@ -1,5 +1,3 @@
-//import {database,pouchDB} from './src/database.js';
-
 var cacheName = 'offlineCache-v6';
 
 var contentToCache = [
