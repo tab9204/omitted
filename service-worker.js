@@ -1,7 +1,21 @@
-var cacheName = 'offlineCache-v6';
+var cacheName = 'offlineCache-v9';
 
 var contentToCache = [
-  './manifest.json'
+  './manifest.json',
+  './assets/recovery.png',
+  './assets/loading.gif',
+  './assets/plus.png',
+  './assets/splash-192.png',
+  './assets/splash-256.png',
+  './assets/splash-384.png',
+  './assets/splash-512.png',
+  './assets/WorkSans-VariableFont_wght.ttf',
+  './assets/x.png',
+  './libraries/flatpickr.css',
+  './libraries/flatpickr.js',
+  './libraries/mithril.min.js',
+  './libraries/moment.js',
+  './libraries/pouchdb-7.2.1.js'
 ];
 
 
@@ -49,10 +63,12 @@ since the turning this script into a module does not play nice we will have to u
 
 self.addEventListener('pushsubscriptionchange', function(event) {
   var update = async (event) =>{
+    //use vanilla js to do this, do not use pouchdb
     var user_id =  await pouchDB.local.get("_local/user");
 
     var subscription = await self.registration.pushManager.subscribe(event.oldSubscription.options);
 
+    //directly make the fetch request instead of using the database function
     return await database.saveUserSubscription(subscription,user_id);
   }
 
