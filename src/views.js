@@ -35,6 +35,15 @@ var header = {
   }
 }
 
+//header component
+var footer = {
+  view: ()=>{
+    return m(".footer",[
+      m("img.recovery", {src:"./assets/recovery.png", onclick: () => {window.location = "#!/recovery";}})
+    ])
+  }
+}
+
 //reminder component
 var reminder = {
   view: (vnode) => {
@@ -104,7 +113,7 @@ var homeScreen = {
     return m("homeScreen.contentView",[
       m(header),
       m(".pageContent",[
-        m(".pageSection", [//todays reminders section
+        m(".pageSection", [
         //  m(".sectionHeader", moment().format("ddd, MMM DD YYYY")),
           m(".reminderList",[
             reminders.all.map((current, i) => {//loop through and display reminders sorted for today
@@ -112,7 +121,8 @@ var homeScreen = {
             })
           ])
         ])
-      ])
+      ]),
+      m(footer)
     ])
   }
 }
@@ -220,5 +230,54 @@ var addScreen = {//add new reminder screen
   }
 }
 
+//the recovery screen, used to recover lost content with a user id
+var recoveryScreen = {
+  view: (vnode)=>{
+    return m("recoveryScreen.contentView",[
+      m(".pageContent",[
+        m(".pageSection", [
+          m(".navigation",[
+            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}}),
+            m("img.add",{src:"./assets/recovery.png", onclick: async (e) => {
+              //disable this click event to prevent double clicks
+              e.currentTarget.style.pointerEvents = "none";
 
-export{homeScreen,addScreen,loadingScreen};
+              //the id supplied in the uid input field
+              var input_id = document.querySelector(".uidInput").value;
+
+              try{
+                //set the user id to the one one provided in the input field
+
+                //throw an error if the input field is empty
+                if(input_id == ""){
+                  throw "Please insert a user id to recover";
+                }
+
+                await pouchDB.recoverUser(parseInt(input_id));
+
+                window.location = "#!/loading";
+              }
+              catch (error){
+                alert(error);
+                e.currentTarget.style.pointerEvents = "auto";
+              }
+            }})
+          ])
+        ]),
+        m(".pageSection",[
+          m(".uidHeader", "User ID"),
+          m(".uid", database.user_id)
+        ]),
+        m(".pageSection",[
+          m(".uidHelpText","Save the above User ID to recover reminders if they are deleted. Treat this like a password and keep it secret.")
+        ]),
+        m(".pageSection",[
+          m("input.uidInput",{type: "text", placeholder: "Insert User ID Here"})
+        ])
+      ])
+    ])
+  }
+}
+
+
+export{homeScreen,addScreen,loadingScreen, recoveryScreen};

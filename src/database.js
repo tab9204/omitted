@@ -36,10 +36,16 @@ var pouchDB = {
       }
     }
   },
-  recoverUser: async () =>{
+  recoverUser: async (new_id) =>{
+    //get the currently saved user id in the local db
     var user = await pouchDB.local.get("_local/user");
-    user.user_id = 56863104121215;
+    //add the new id to the local db
+    user.user_id = new_id;
     var reset = await pouchDB.local.put(user);
+
+    //set the current database user id to the new id
+    database.user_id = new_id;
+
     console.log("user reset");
   }
 }

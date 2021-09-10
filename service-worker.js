@@ -45,6 +45,8 @@ self.addEventListener('push', event => {
 
 
 /*
+since the turning this script into a module does not play nice we will have to use vanilla js to get the user id and post the new subscription to the server
+
 self.addEventListener('pushsubscriptionchange', function(event) {
   var update = async (event) =>{
     var user_id =  await pouchDB.local.get("_local/user");
