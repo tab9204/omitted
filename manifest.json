@@ -24,7 +24,7 @@
     }
   ],
   "background_color": "#4D77BE",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"
 }
