@@ -47,7 +47,7 @@ var events = {
     var loadingIcon = document.querySelector(".miniLoading");
 
     //how many px the screen must be dragged before the refresh is activated
-    var buffer = screen.height * .2;
+    var buffer = screen.height * .25;
 
 
     appScreen.addEventListener('touchstart', (e)=>{
@@ -81,7 +81,6 @@ var events = {
         deltaY = y - topStartY;
 
         if(deltaY <= buffer){
-          console.log(deltaY);
           loadingIcon.style.top = (-45 + deltaY)+"px";
         }
     }

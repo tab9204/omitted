@@ -1,3 +1,5 @@
+importScripts('./libraries/pouchdb-7.2.1.js');
+
 var cacheName = 'offlineCache-v10';
 
 var contentToCache = [
@@ -51,7 +53,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 //push notification event
-self.addEventListener('push', event => {
+self.addEventListener('push', (event) => {
   const data = event.data.json();
   console.log("recieved push notification");
   event.waitUntil(self.registration.showNotification(data.title, {body: data.body}));
@@ -59,18 +61,29 @@ self.addEventListener('push', event => {
 
 
 /*
-since the turning this script into a module does not play nice we will have to use vanilla js to get the user id and post the new subscription to the server
+//updates a user push subscription with a new one when the old one expires
+var updateSubscription = async (event) =>{
+
+  //get the user id from the local db
+  var db = new PouchDB('reminders');
+  var result =  await db.get("_local/user");
+  console.log(result.user_id);
+
+  //get a new sub
+  var subscription = await self.registration.pushManager.getSubscription();
+
+  //send the new user sub to the server
+  var save = {"user_id":result.user_id,"sub":subscription};
+  var response = await fetch("/saveUserSub", {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json'
+   },
+   body:JSON.stringify(save)
+ });
+ if(!response.ok){throw "Could not save user push subscription";}
+}
 
 self.addEventListener('pushsubscriptionchange', function(event) {
-  var update = async (event) =>{
-    //use vanilla js to do this, do not use pouchdb
-    var user_id =  await pouchDB.local.get("_local/user");
-
-    var subscription = await self.registration.pushManager.subscribe(event.oldSubscription.options);
-
-    //directly make the fetch request instead of using the database function
-    return await database.saveUserSubscription(subscription,user_id);
-  }
-
-  event.waitUntil(update());
+  event.waitUntil(updateSubscription());
 });*/

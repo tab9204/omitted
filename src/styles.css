@@ -19,6 +19,7 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: c
 
 
 /*Add screen styles */
+addScreen{z-index: 2;}
 addScreen input{border:none;}
 input:focus{outline: none;}
 
@@ -40,6 +41,7 @@ input:focus{outline: none;}
 
 
 /*Home screen styles*/
+homeScreen{z-index: 1;}
 homeScreen .pageContent{justify-content: start;}
 .reminderList{display: flex; flex-direction: column;}
   .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 8px 0 8px 0; position: relative; left: 0px;}
@@ -55,6 +57,7 @@ homeScreen .pageContent{justify-content: start;}
 .loading{position: relative; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 256px; height: 256px;}
 
 /*recovery screen styles */
+recoveryScreen {z-index: 2;}
 recoveryScreen .pageSection{text-align: center;}
 .uidHeader{font-size: 1.3em; margin: 5px;}
 .uidInput{margin: 5px;}
@@ -86,6 +89,18 @@ input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transfo
 .slideUp{animation: slideUp 0.5s; animation-fill-mode: forwards;}
 @keyframes slideUp {
   to {top: -45px;}
+}
+
+.navUp{animation: navUp 0.25s; animation-fill-mode: forwards;}
+@keyframes navUp {
+  from {top: 100%;}
+  to {top: 0%;}
+}
+
+.navDown{animation: navDown 0.25s; animation-fill-mode: forwards;}
+@keyframes navDown {
+  from {top: 0%;}
+  to {top: 100%;}
 }
 
 

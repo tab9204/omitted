@@ -66,6 +66,7 @@ app.post('/saveUserSub', async (req,res) => {
     //check if the user already has a sub in the DB
     const existing = await client.query(`select * from users where user_id = ${req.body.user_id}`);
 
+    //if there is already a sub saved for the user update the existing entry
     if(existing.rows.length > 0){
       const result = await client.query(`update users set sub = '${JSON.stringify(req.body.sub)}' where user_id = ${req.body.user_id}`);
       res.send("User subscription updated");
