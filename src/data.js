@@ -43,7 +43,7 @@ var events = {
     //how many px the user has swiped down since reaching the top of the container
     var deltaY = 0;
     //the part of the screen listening to the swipe events
-    var appScreen =  document.querySelector(".pageContent");
+    var appScreen =  document.querySelector("homeScreen .pageContent");
     var loadingIcon = document.querySelector(".miniLoading");
 
     //how many px the screen must be dragged before the refresh is activated
