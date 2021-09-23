@@ -91,16 +91,17 @@ input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transfo
   to {top: -45px;}
 }
 
-.navUp{animation: navUp 0.25s; animation-fill-mode: forwards;}
-@keyframes navUp {
-  from {top: 100%;}
-  to {top: 0%;}
+
+.navIn{animation: navIn 0.1s; animation-fill-mode: forwards;}
+@keyframes navIn {
+  from {transform: scale(0);}
+  to {transform: scale(1);}
 }
 
-.navDown{animation: navDown 0.25s; animation-fill-mode: forwards;}
-@keyframes navDown {
-  from {top: 0%;}
-  to {top: 100%;}
+.navOut{animation: navOut 0.1s; animation-fill-mode: forwards;}
+@keyframes navOut {
+  from {opacity: 1;}
+  to { opacity: 0;}
 }
 
 

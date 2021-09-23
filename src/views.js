@@ -114,7 +114,6 @@ var homeScreen = {
   oncreate: () =>{
     //set up the refresh event handler
     events.refreshSwipe();
-
   },
   view: (vnode)=>{
     return m("homeScreen.contentView",[
@@ -162,7 +161,7 @@ var loadingScreen = {
 
 var addScreen = {//add new reminder screen
   onbeforeremove: function(vnode) {
-    vnode.dom.classList.add("navDown");
+    vnode.dom.classList.add("navOut");
     //defer removing the view until after the navDown animation finishes
     return new Promise(function(resolve) {
         vnode.dom.addEventListener("animationend", resolve)
@@ -185,7 +184,7 @@ var addScreen = {//add new reminder screen
 
   },
   view: (vnode)=>{
-    return m("addScreen.contentView.navUp",[
+    return m("addScreen.contentView.navIn",[
       m(".pageContent",[
         m(".pageSection", [//navigation section
           m(".navigation",[
@@ -247,14 +246,14 @@ var addScreen = {//add new reminder screen
 //the recovery screen, used to recover lost content with a user id
 var recoveryScreen = {
   onbeforeremove: function(vnode) {
-    vnode.dom.classList.add("navDown");
+    vnode.dom.classList.add("navOut");
     //defer removing the view until after the navDown animation finishes
     return new Promise(function(resolve) {
         vnode.dom.addEventListener("animationend", resolve)
     })
   },
   view: (vnode)=>{
-    return m("recoveryScreen.contentView.navUp",[
+    return m("recoveryScreen.contentView.navIn",[
       m(".pageContent",[
         m(".pageSection", [
           m(".navigation",[
