@@ -9,10 +9,10 @@ import "../libraries/flatpickr.js";
 var header = {
   view: ()=>{
     return m(".header",[
-      m("img.miniLoading", {src:"./assets/loading.gif"}),
-      m("img.recovery", {src:"./assets/splash-192.png", onclick: () => {window.location = "#!/recovery";}}),
+      m("img.miniLoading", {src:"./assets/loading.gif", alt: "Loading"}),
+      m("img.recovery", {src:"./assets/splash-192.png", alt: "Recover reminders", onclick: () => {window.location = "#!/recovery";}}),
       m("div", moment().format("ddd, MMM DD YYYY")),
-      m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
+      m("img.add",{src:"./assets/plus.png", alt: "Add reminder", onclick: async (e) => {
         //add a short vibration when the button is pressed for feedback
         window.navigator.vibrate(5);
         //disable this click event to prevent double clicks
@@ -153,7 +153,7 @@ var loadingScreen = {
     return m("loadingScreen.contentView",[
       m(header),
       m(".pageContent",[
-        m ("img.loading", {src:"./assets/loading.gif"})
+        m ("img.loading", {src:"./assets/loading.gif", alt: "Loading"})
       ])
     ])
   }
@@ -188,8 +188,8 @@ var addScreen = {//add new reminder screen
       m(".pageContent",[
         m(".pageSection", [//navigation section
           m(".navigation",[
-            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}}),
-            m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
+            m("img.exit",{src:"./assets/x.png", alt: "Back", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}}),
+            m("img.add",{src:"./assets/plus.png", alt: "Add", onclick: async (e) => {
               //disable this click event to prevent double clicks
               e.currentTarget.style.pointerEvents = "none";
               try{
@@ -257,7 +257,7 @@ var recoveryScreen = {
       m(".pageContent",[
         m(".pageSection", [
           m(".navigation",[
-            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}})
+            m("img.exit",{src:"./assets/x.png", alt: "Back", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}})
           ])
         ]),
         m(".pageSection",[
