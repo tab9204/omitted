@@ -10,8 +10,9 @@ var header = {
   view: ()=>{
     return m(".header",[
       m("img.miniLoading", {src:"./assets/loading.gif"}),
+      m("img.recovery", {src:"./assets/splash-192.png", onclick: () => {window.location = "#!/recovery";}}),
       m("div", moment().format("ddd, MMM DD YYYY")),
-      m("img.add",{class: window.location.hash == "#!/loading" ? "hidden" : "", src:"./assets/plus.png", onclick: async (e) => {
+      m("img.add",{src:"./assets/plus.png", onclick: async (e) => {
         //add a short vibration when the button is pressed for feedback
         window.navigator.vibrate(5);
         //disable this click event to prevent double clicks
@@ -35,14 +36,6 @@ var header = {
   }
 }
 
-//header component
-var footer = {
-  view: ()=>{
-    return m(".footer",[
-      m("img.recovery", {src:"./assets/recovery.png", onclick: () => {window.location = "#!/recovery";}})
-    ])
-  }
-}
 
 //reminder component
 var reminder = {
@@ -112,6 +105,9 @@ var homeScreen = {
     })
   },
   oncreate: () =>{
+    //enable the header buttons
+    document.querySelector(".recovery").style.pointerEvents = "auto";
+    document.querySelector(".add").style.pointerEvents = "auto";
     //set up the refresh event handler
     events.refreshSwipe();
   },
@@ -127,8 +123,7 @@ var homeScreen = {
             })
           ])
         ])
-      ]),
-      m(footer)
+      ])
     ])
   }
 }
@@ -148,6 +143,11 @@ var loadingScreen = {
       //if there is an error sorting the reminders just show the homescreen
       setTimeout(function(){ window.location = "#!/home"; }, 1000);
     }
+  },
+  oncreate: () =>{
+    //disable the header buttons while the page loads
+    document.querySelector(".recovery").style.pointerEvents = "none";
+    document.querySelector(".add").style.pointerEvents = "none";
   },
   view: (vnode)=>{
     return m("loadingScreen.contentView",[
@@ -257,31 +257,7 @@ var recoveryScreen = {
       m(".pageContent",[
         m(".pageSection", [
           m(".navigation",[
-            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}}),
-            m("img.add",{src:"./assets/recovery.png", onclick: async (e) => {
-              //disable this click event to prevent double clicks
-              e.currentTarget.style.pointerEvents = "none";
-
-              //the id supplied in the uid input field
-              var input_id = document.querySelector(".uidInput").value;
-
-              try{
-                //set the user id to the one one provided in the input field
-
-                //throw an error if the input field is empty
-                if(input_id == ""){
-                  throw "Please insert a user id to recover";
-                }
-
-                await pouchDB.recoverUser(parseInt(input_id));
-
-                window.location = "#!/loading";
-              }
-              catch (error){
-                alert(error);
-                e.currentTarget.style.pointerEvents = "auto";
-              }
-            }})
+            m("img.exit",{src:"./assets/x.png", onclick: ()=>{window.navigator.vibrate(5);  window.location = "#!/home";}})
           ])
         ]),
         m(".pageSection",[
@@ -293,6 +269,32 @@ var recoveryScreen = {
         ]),
         m(".pageSection",[
           m("input.uidInput",{type: "text", placeholder: "Insert User ID Here"})
+        ]),
+        m(".pageSection",[
+          m(".recoverBtn",{onclick: async (e) => {
+            //disable this click event to prevent double clicks
+            e.currentTarget.style.pointerEvents = "none";
+
+            //the id supplied in the uid input field
+            var input_id = document.querySelector(".uidInput").value;
+
+            try{
+              //set the user id to the one one provided in the input field
+
+              //throw an error if the input field is empty
+              if(input_id == ""){
+                throw "Please insert a user id to recover";
+              }
+
+              await pouchDB.recoverUser(parseInt(input_id));
+
+              window.location = "#!/loading";
+            }
+            catch (error){
+              alert(error);
+              e.currentTarget.style.pointerEvents = "auto";
+            }
+          }},"Recover reminders")
         ])
       ])
     ])
