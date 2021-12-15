@@ -11,7 +11,6 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: c
       .miniLoading{position: absolute; left: 50%; transform: translateX(-50%); border: .5px solid #d6d6d6; z-index: 2; background: white; border-radius: 40px; width: 40px; top: -45px;}
       .backBtn{position: absolute; width: 45px;}
       .header .savedNavIcon{position: absolute; left:5px;}
-    .footer{bottom: 0; padding: 7px; background: white; z-index: 2; border-top: 1px solid #d6d6d6; filter: drop-shadow(0px 1px 3px #d6d6d6);}
       .recovery{width: 30px; height: 30px;}
     .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll; background: white; top:0px;}
       .pageContent .pageSection{margin: 10px 10px 10px 10px;}
@@ -46,7 +45,7 @@ homeScreen .pageContent{justify-content: start;}
 .reminderList{display: flex; flex-direction: column;}
   .reminder{display: flex; padding: 5px; background: #e8eaed; border: 1px solid #d6d6d6; margin: 8px 0 8px 0; position: relative; left: 0px;}
     .leftSide{ display: flex; width: 15%; border-right: 1px solid;}
-      .weekDay{align-self: center; margin: 0 5px 0 5px;}
+      .weekday{align-self: center; margin: 0 5px 0 5px;}
     .rightSide{display: flex; width: 85%; justify-content: space-between; flex-wrap: wrap; margin: 0 5px 0 5px;}
       .title{width: 100%; font-size: 1.3em; margin-bottom: 5px;}
       .date{font-size: 1.1em;}
