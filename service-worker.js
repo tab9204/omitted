@@ -1,6 +1,6 @@
 importScripts('./libraries/pouchdb-7.2.1.js');
 
-var cacheName = 'offlineCache-v13';
+var cacheName = 'offlineCache-v14';
 
 var contentToCache = [
   './manifest.json',
