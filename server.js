@@ -10,6 +10,13 @@ const cron = require('node-cron');
 const { Client } = require('pg');
 const moment = require("moment");
 
+//twilio api credentials
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const servicesSid = process.env.TWILIO_SERVICES_SID;
+
+const twilioClient = require('twilio')(accountSid, authToken);
+
 //database client
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -61,6 +68,20 @@ app.get("/service-worker.js",(req,res) =>{
 });
 
 //adds a new user to the db pr updates an existing
+app.post('/addNewUser', async (req,res) => {
+  try{
+    //insert the new user into the db
+    const result = await client.query(`insert into users (user_id) values (${req.body.user_id})`);
+    res.send("New user added");
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'User failed to save to db'});
+  }
+
+});
+
+//adds a new user to the db pr updates an existing
 app.post('/saveUserSub', async (req,res) => {
   try{
     //check if the user already has a sub in the DB
@@ -86,6 +107,7 @@ app.post('/saveUserSub', async (req,res) => {
 
 });
 
+
 //updates an existing but expired user sub with a new one
 app.post('/updateUserSub', async (req,res) => {
   try{
@@ -96,6 +118,48 @@ app.post('/updateUserSub', async (req,res) => {
   catch (error){
     console.log(error);
     res.status("500").send({message: 'User subscription failed to update'});
+  }
+
+});
+
+//saves a phone number to a user
+app.post('/savephoneNumber', async (req,res) => {
+  try{
+    //check if the phone number is already in use
+    const existing = await client.query(`select * from users where phone = '${req.body.phoneNumber}'`);
+    //if the phone number is not currently in the db it can be saved to the user
+    if(existing.rows.length <= 0){
+      const result = await client.query(`update users set phone = '${req.body.phoneNumber}' where user_id = ${req.body.user_id}`);
+      res.send("Added user phone number");
+    }
+    else{
+      throw "Phone number is already in use";
+    }
+
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Could not save the user phone number'});
+  }
+
+});
+
+app.post('/checkPhoneNumber', async (req,res) => {
+  try{
+
+    const existing = await client.query(`select phone from users where user_id = ${req.body.user_id}`);
+    console.log(existing.rows[0].phone);
+    if(existing.rows[0].phone == null){
+      res.send(false);
+    }
+    else{
+      res.send(true);
+    }
+
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Could not save the user phone number'});
   }
 
 });
@@ -140,6 +204,35 @@ app.post('/getAllReminders', async (req,res) => {
   catch (error){
     console.log(error);
     res.status("500").send({message: 'Could not retrieve reminders from the db'});
+  }
+
+});
+
+//sends a sms verification to the specified phone number
+app.post('/requestVerification', async (req,res) => {
+  try{
+    var verification = await twilioClient.verify.services(servicesSid).verifications.create({to: `${req.body.phoneNumber}`, channel: 'sms'});
+    console.log(verification.status);
+    res.send("Verification sent to phone");
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Could not send verification sms'});
+  }
+
+});
+
+//checks that a supplied verification code is correct
+app.post('/checkVerification', async (req,res) => {
+  try{
+    var verification_check = await twilioClient.verify.services(servicesSid).verificationChecks.create({to: `${req.body.phoneNumber}`, code: `${req.body.code}`});
+    console.log(verification_check.status);
+    const result = await client.query(`select user_id from users where phone = '${req.body.phoneNumber}'`);
+    res.send(result.rows[0]);
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Could not verify sms'});
   }
 
 });

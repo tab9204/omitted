@@ -44,7 +44,6 @@ class Swiper {
 
         if(parseInt(currentPos) >= this.swipeThreshold){
           e.currentTarget.style.left = parseInt(currentPos) - diffX + "px";
-          console.log(parseInt(currentPos) - diffX);
         }
 
         this.initialX = currentX;

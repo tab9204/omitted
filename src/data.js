@@ -2,7 +2,6 @@
 import {Swiper} from "./swipe.js";
 import {database} from './database.js';
 
-
 //events for interacting with the UI
 var events = {
   //when a reminder is swiped
@@ -230,6 +229,17 @@ var worker = {
   }
 }
 
+//any dynamic text content that is rendered in the views
+var text = {
+  popup: ""
+}
+
+//variables for recovering user data
+var recovery = {
+  savedPhoneNumber: null,
+  phoneNumber: null
+}
+
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
@@ -246,4 +256,4 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 
-export{events,reminders,worker};
+export{events,reminders,worker,text,recovery};
