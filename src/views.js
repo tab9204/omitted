@@ -107,10 +107,13 @@ var repeatButtons = {
 
 // 3 fields used to input phone numbers
 var phoneInput = {
+  oncreate: () =>{
+    document.getElementById("areaCode").focus();
+  },
   view: ()=>{
     return m(".phoneContainer",[
       m("div", "+1"),
-      m ("input.phoneInput", {id:"areaCode", maxLength:"3", type:"number", autofocus: true, onkeyup: (e)=>{
+      m ("input.phoneInput", {id:"areaCode", maxLength:"3", type:"number", onkeyup: (e)=>{
       //if there are 3 characters in the field
         if(e.currentTarget.value.length >= 3){
           //switch the focus to the next input box

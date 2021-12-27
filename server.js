@@ -146,7 +146,6 @@ app.post('/savephoneNumber', async (req,res) => {
 
 app.post('/checkPhoneNumber', async (req,res) => {
   try{
-
     const existing = await client.query(`select phone from users where user_id = ${req.body.user_id}`);
     console.log(existing.rows[0].phone);
     if(existing.rows[0].phone == null){
