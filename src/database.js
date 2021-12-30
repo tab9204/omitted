@@ -1,4 +1,4 @@
-import "../libraries/pouchdb-7.2.1.js";
+//import "../libraries/pouchdb-7.2.1.js";
 
 /*********database functionality********/
 //local DB using pouch
@@ -149,7 +149,7 @@ var database = {
         },
         body:JSON.stringify(send)
       });
-      if(!response.ok){throw "Was not able to retrieve phone number at thie time";}
+      if(!response.ok){throw "Was not able to retrieve phone number at this time";}
       var data = await response.json();
       return data;
     },

@@ -1,5 +1,6 @@
 require('dotenv').config({ path: 'keys.env' });
 
+const compression = require('compression');
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -46,6 +47,9 @@ if(process.env.NODE_ENV === 'production') {
       next()
   })
 }
+
+// Compress all HTTP responses
+app.use(compression());
 
 app.use(express.json());
 //serve the assets

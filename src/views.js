@@ -1,7 +1,7 @@
 /*****app views****/
 import {events,reminders,worker,text,recovery} from './data.js';
 import {database,pouchDB} from './database.js';
-import "../libraries/flatpickr.js";
+//import "../libraries/flatpickr.js";
 
 /************view components*************/
 
