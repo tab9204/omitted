@@ -81,7 +81,7 @@ var reminder = {
       ]),
       m(".rightSide",[
         m(".title",vnode.attrs.reminder.title),
-        m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(vnode.attrs.reminder.offset).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
+        m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(parseInt(vnode.attrs.reminder.offset)).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
         m(".time",vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
         m(".repeat",vnode.attrs.reminder.repeat),
       ])
@@ -340,12 +340,20 @@ var addScreen = {//add new reminder screen
             m("img.add",{src:"./assets/plus.png", alt: "Add", onclick: async (e) => {
               //disable this click event to prevent double clicks
               e.currentTarget.style.pointerEvents = "none";
-              //add a short vibration when the button is pressed for feedback
-              window.navigator.vibrate(5);
-              //get the data needed for a reminder
-              var newReminder = reminders.gatherReminderData();
-              //route to the loading screen
-              m.route.set('/loading', {load: "new", reminder: newReminder});
+              try{
+                //add a short vibration when the button is pressed for feedback
+                window.navigator.vibrate(5);
+                //get the data needed for a reminder
+                var newReminder = reminders.gatherReminderData();
+                //route to the loading screen
+                m.route.set('/loading', {load: "new", reminder: newReminder});
+              }
+              catch(error){
+                text.popup = error;
+                m.redraw();
+                document.getElementById("popup").classList.add("fadeInFadeOut");
+              }
+              e.currentTarget.style.pointerEvents = "auto";
             }})
           ])
         ]),
@@ -376,7 +384,8 @@ var addScreen = {//add new reminder screen
         ]),
         m(".pageSection", [//repeat section
           m(repeatButtons)
-        ])
+        ]),
+        m(popup, {text: text.popup})
       ])
     ])
   }
