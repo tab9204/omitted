@@ -28,18 +28,24 @@ var header = {
         //disable this click event to prevent double clicks
         e.currentTarget.style.pointerEvents = "none";
         try{
-          //request notifications permission
-          var permission = await worker.requestPermissions();
-          //try to subscribe the user to push notifications
-          var subscription = await worker.subscribeUser(permission);
-          //add the subscription to the db
-          await database.saveUserSubscription(subscription);
-
+          //get the user's token saved in the db
+          var push = await database.checkUserSubscription();
+          //register the browser to the pushy subscription
+          var token = await Pushy.register({ appId: '61d7697dddfb89f56696d67b' });
+          //if the push token in the db is different from the one registered in the browser
+          if(push.sub !== token){
+            //update the token saved in the db
+            await database.saveUserSubscription(token);
+            console.log("User push subcription saved");
+          }
+          //if the two tokens are the same then no update is needed
+          else{
+            throw "User push subcription is up to date";
+          }
         }
         catch(error){
           console.log(error);
         }
-
         m.route.set('/add');
       }})
     ])

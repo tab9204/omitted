@@ -1,12 +1,13 @@
 //importScripts('./libraries/pouchdb-7.2.1.js');
 
-var cacheName = 'offlineCache-v16';
+var cacheName = 'offlineCache-v17';
 
 var contentToCache = [
   './manifest.json',
   './assets/recovery.png',
   './assets/loading.gif',
   './assets/plus.png',
+  './assets/splash-59.png',
   './assets/splash-192.png',
   './assets/splash-256.png',
   './assets/splash-384.png',
@@ -52,11 +53,31 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+/*
 //push notification event
 self.addEventListener('push', (event) => {
   const data = event.data.json();
   console.log("recieved push notification");
   event.waitUntil(self.registration.showNotification(data.title, {body: data.body}));
+});*/
+
+//push notification event
+self.addEventListener('push', function (event) {
+    // Extract payload as JSON object, default to empty object
+    var data = event.data.json();
+    //image URL
+    var image = '.\assets\splash-59.png';
+    // Notification title and body
+    var title = data.title;
+    var body = data.body;
+    // Notification options
+    var options = {
+        body: body,
+        icon: image,
+        badge: image,
+    };
+    // Wait until notification is shown
+    event.waitUntil(self.registration.showNotification(title, options));
 });
 
 

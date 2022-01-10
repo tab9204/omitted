@@ -1,22 +1,24 @@
 require('dotenv').config({ path: 'keys.env' });
 
-const compression = require('compression');
 const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const webPush = require('web-push');
-const fs = require('fs');
-const cron = require('node-cron');
-const { Client } = require('pg');
-const moment = require("moment");
+const compression = require('compression');//text compression for requested files
+const cron = require('node-cron');//cron to regularly check and clean reminders
+const { Client } = require('pg');//postgreSQL db connection
+const moment = require("moment");//parses reminder timestamps
+const Pushy = require('pushy');//push notifications
 
 //twilio api credentials
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const servicesSid = process.env.TWILIO_SERVICES_SID;
-
 const twilioClient = require('twilio')(accountSid, authToken);
+
+//pushy credentials
+const pushyKey = process.env.PUSHY_API_KEY;
+const pushyAPI = new Pushy(pushyKey);
 
 //database client
 const client = new Client({
@@ -25,15 +27,10 @@ const client = new Client({
     rejectUnauthorized: false
   }
 });
-
+//connect to the db
 client.connect();
 
-//push notification keys
-const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
-const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
-
-webPush.setVapidDetails('mailto:nimdhiran@gmail.com', publicVapidKey, privateVapidKey);
-
+//start the server
 server.listen(process.env.PORT || 3000, () => {
   console.log('Server started');
 });
@@ -48,17 +45,17 @@ if(process.env.NODE_ENV === 'production') {
   })
 }
 
-// Compress all HTTP responses
+//Compress all HTTP responses
 app.use(compression());
-
+//parse incoming json requests
 app.use(express.json());
-//serve the assets
+//serve the static assets
 app.use('/assets', express.static('assets'));
 app.use('/libraries', express.static('libraries'));
 app.use('/src', express.static('src'));
 app.use('/', express.static('/'));
 
-/***************Server routes***************/
+/***************routes***************/
 app.get("/",(req,res) =>{
     res.sendFile(__dirname + '/index.html');
 });
@@ -71,181 +68,169 @@ app.get("/service-worker.js",(req,res) =>{
     res.sendFile(__dirname + '/service-worker.js');
 });
 
-//adds a new user to the db pr updates an existing
+//adds a new user id to the db
 app.post('/addNewUser', async (req,res) => {
   try{
     //insert the new user into the db
-    const result = await client.query(`insert into users (user_id) values (${req.body.user_id})`);
+    const add = await client.query(`insert into users (user_id) values (${req.body.user_id})`);
     res.send("New user added");
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'User failed to save to db'});
+    res.status("500").send({message: 'Failed to add new user to the db'});
   }
-
 });
 
-//adds a new user to the db pr updates an existing
+//updates a user's push subscription in the db
 app.post('/saveUserSub', async (req,res) => {
   try{
-    //check if the user already has a sub in the DB
-    const existing = await client.query(`select * from users where user_id = ${req.body.user_id}`);
-
-    //if there is already a sub saved for the user update the existing entry
-    if(existing.rows.length > 0){
-      const result = await client.query(`update users set sub = '${JSON.stringify(req.body.sub)}' where user_id = ${req.body.user_id}`);
-      res.send("User subscription updated");
+    //check if this subscription is already in the db
+    const duplicate = await client.query(`select * from users where sub = '${req.body.sub}'`);
+    if(duplicate.rows.length > 0){
+      throw "Push subscription is already in use";
     }
-    //no user sub in the DB so add a new one
+    //if the push sub is not already in the db
     else{
-      //insert the new user and sub into the db
-      const result = await client.query(`insert into users (user_id, sub) values (${req.body.user_id}, '${JSON.stringify(req.body.sub)}')`);
-      res.send("User subscription saved");
+      //update the user's push sub with this new subscription
+      const update = await client.query(`update users set sub = '${req.body.sub}' where user_id = ${req.body.user_id}`);
+      res.send("User push subscription saved");
     }
-
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'User subscription failed to save to db'});
+    res.status("500").send({message: 'Failed to save the user push subscription'});
   }
-
 });
 
-
-//updates an existing but expired user sub with a new one
-app.post('/updateUserSub', async (req,res) => {
+//returns a user's push subcription
+app.post('/checkUserSub', async (req,res) => {
   try{
-    //insert the new user and sub into the db
-    const result = await client.query(`update users set sub = '${JSON.stringify(req.body.sub)}' where user_id = ${req.body.user_id}`);
-    res.send("User subscription updated");
+    const sub = await client.query(`select sub from users where user_id = ${req.body.user_id}`);
+    res.send(sub.rows[0]);
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'User subscription failed to update'});
+    res.status("500").send({message: 'Failed to get the user push subscription'});
   }
-
 });
 
-//saves a phone number to a user
+//updates a user's phone number in the db
 app.post('/savephoneNumber', async (req,res) => {
   try{
-    //check if the phone number is already in use
-    const existing = await client.query(`select * from users where phone = '${req.body.phoneNumber}'`);
-    //if the phone number is not currently in the db it can be saved to the user
-    if(existing.rows.length <= 0){
-      const result = await client.query(`update users set phone = '${req.body.phoneNumber}' where user_id = ${req.body.user_id}`);
+    //check if the phone number is already in the db
+    const duplicate = await client.query(`select * from users where phone = '${req.body.phoneNumber}'`);
+    //if the phone number is not currently in the db
+    if(duplicate.rows.length <= 0){
+      //update the user's phone number
+      const update = await client.query(`update users set phone = '${req.body.phoneNumber}' where user_id = ${req.body.user_id}`);
       res.send("Added user phone number");
     }
     else{
       throw "Phone number is already in use";
     }
-
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Could not save the user phone number'});
+    res.status("500").send({message: 'Failed to save the user phone number'});
   }
-
 });
 
+//returns true/false for if the user has a phone number saved to the db
 app.post('/checkPhoneNumber', async (req,res) => {
   try{
-    const existing = await client.query(`select phone from users where user_id = ${req.body.user_id}`);
-    console.log(existing.rows[0].phone);
-    if(existing.rows[0].phone == null){
+    const phone = await client.query(`select phone from users where user_id = ${req.body.user_id}`);
+    if(phone.rows[0].phone == null){
       res.send(false);
     }
     else{
       res.send(true);
     }
-
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Could not save the user phone number'});
+    res.status("500").send({message: 'Failed to check the user phone number'});
   }
-
 });
 
-//adds a reminder to the db for a specified user
+//adds a reminder to the dbr
 app.post('/saveReminder', async (req,res) => {
   try{
-    //insert the new user and sub into the db
-    const result = await client.query(`insert into reminders (user_id, details) values (${req.body.user_id}, '${JSON.stringify(req.body.details).replace(/[\/\(\)\']/g, "''")}')`);
-    res.send(result);
+    //insert the new reminder into the db
+    const add = await client.query(`insert into reminders (user_id, details) values (${req.body.user_id}, '${JSON.stringify(req.body.details).replace(/[\/\(\)\']/g, "''")}')`);
+    res.send(add);
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Reminder could not be added to the db'});
+    res.status("500").send({message: 'Failed to add the reminder to the db'});
   }
-
 });
 
-//removes a reminder from the db for a specified user
+//deletes a reminder from the db
 app.post('/deleteReminder', async (req,res) => {
   try{
     //delete the reminder from the db
-    const result = await client.query(`delete from reminders where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${req.body.reminder_id}'`);
-    res.send(result);
+    const remove = await client.query(`delete from reminders where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${req.body.reminder_id}'`);
+    res.send(remove);
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Reminder could not be deleted to the db'});
+    res.status("500").send({message: 'Failed to delete the reminder from the db'});
   }
-
 });
 
-//returns all reminders for a specified user
+//returns all reminders in the db for a specified user
 app.post('/getAllReminders', async (req,res) => {
   try{
     //first clean the users reminders so we return the most up to date reminders to the client
    await cleanReminders(req.body.user_id);
-    //get all reminder details for the user
-    const result = await client.query(`select details from reminders where user_id = ${req.body.user_id}`);
-    res.send(result.rows);
+    //get all the user's reminder details
+    const details = await client.query(`select details from reminders where user_id = ${req.body.user_id}`);
+    res.send(details.rows);
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Could not retrieve reminders from the db'});
+    res.status("500").send({message: 'Failed to return reminders from the db'});
   }
-
 });
 
-//sends a sms verification to the specified phone number
+//sends a sms verification to the specified phone number using twilio
 app.post('/requestVerification', async (req,res) => {
   try{
-    var verification = await twilioClient.verify.services(servicesSid).verifications.create({to: `${req.body.phoneNumber}`, channel: 'sms'});
-    console.log(verification.status);
+    const verification = await twilioClient.verify.services(servicesSid).verifications.create({to: `${req.body.phoneNumber}`, channel: 'sms'});
     res.send("Verification sent to phone");
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Could not send verification sms'});
+    res.status("500").send({message: 'Failed to send verification sms'});
   }
-
 });
 
 //checks that a supplied verification code is correct
 app.post('/checkVerification', async (req,res) => {
   try{
-    var verification_check = await twilioClient.verify.services(servicesSid).verificationChecks.create({to: `${req.body.phoneNumber}`, code: `${req.body.code}`});
-    console.log(verification_check.status);
-    const result = await client.query(`select user_id from users where phone = '${req.body.phoneNumber}'`);
-    res.send(result.rows[0]);
+    const verification_check = await twilioClient.verify.services(servicesSid).verificationChecks.create({to: `${req.body.phoneNumber}`, code: `${req.body.code}`});
+    //if the status returned is approved the correct code was given and the user was verified
+    if(verification_check.status == "approved"){
+      //get and return the user's saved id
+      const user = await client.query(`select user_id from users where phone = '${req.body.phoneNumber}'`);
+      res.send(user.rows[0]);
+    }
+    //the correct code was not given so throw and error
+    else{
+      throw "Verification code was incorrect";
+    }
   }
   catch (error){
     console.log(error);
-    res.status("500").send({message: 'Could not verify sms'});
+    res.status("500").send({message: 'Failed to verify sms'});
   }
-
 });
 
 
-//check for upcoming reminders every minute
+//runs checks on the remidners every 1 minute
 cron.schedule('* * * * * ', async () => {
-  console.log("Checking reminders");
+  console.log("Current time: " + moment.utc().format("X"));
   try{
-    console.log("Current time: " + moment.utc().format("X"));
     //the time right now as a utc timstamp
     const now = moment.utc().format("X");
     //get all users from db
@@ -255,51 +240,54 @@ cron.schedule('* * * * * ', async () => {
     for(let i = 0; i < allUsers.length; i++){
       //the current user id
       const user_id = allUsers[i].user_id;
-      //clean the db for the user
+      //clean the user's reminders
       await cleanReminders(user_id);
+      console.log("Reminders cleaned");
       //the current user push notification subscription
-      const subscription = allUsers[i].sub;
+      const subscription = allUsers[i].sub == null ? null : [allUsers[i].sub];
+      //push sub options, currently empty
+      const options = {};
       //get all remindres for the current user
       const reminders = await client.query(`select details from reminders where user_id = ${user_id}`);
       const allReminders = reminders.rows;
       //loop through all the user's reminders
       for(let x = 0; x < allReminders.length; x++){
         const reminder = allReminders[x].details;
-        //send a push notification if the reminder is
+        //send a push notification if the reminder is:
+          //not an all day reminder
           //coming up in less then 30 minutes but has not already happened
-          //is not an all day reminder
-          //has not already had a notication sent
-        if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified){
-          const payload = JSON.stringify({
-            title: 'You have a reminder coming up!',
-            body: reminder.title
+          //has not already had a notication
+          //the user push sub is not null
+        if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified && subscription !== null){
+          //push sub details
+          const payload = {title: 'Reminder coming up at ' + moment.unix(reminder.timeStamp).format("LT"),body: reminder.title};
+          console.log("sending notification to: " + subscription);
+          //send push notification with pushy
+          pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
+            if (err) {return console.log("Error sending push notification: " + err);}
+            //if there was no error sending the push notification
+            else{
+              //set the reminder notifed to true and update the reminder db
+              reminder.notified = true;
+              const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+              console.log("reminder updated");
+            }
           });
-          console.log("sending notification");
-          //send push notification
-          webPush.sendNotification(subscription, payload).catch(error => console.error(error));
-
-          //set the reminder notifed to true and update the reminder db
-          reminder.notified = true;
-          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
         }
-        //if the reminder is all day and it is coming up in less then a day
-        else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified){
-          const payload = JSON.stringify({
-            title: "Don't forget this today!",
-            body: reminder.title
+        //send a push notification if the reminder is an all day reminder, is coming up in less then 24 hours, and the user push sub is not null
+        else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified && subscription !== null){
+          const payload = {title: "Don't forget this today!",body: reminder.title};
+          console.log("sending notification to: " + subscription);
+          pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
+            if (err) {return console.log("Error sending push notification: " + err);}
+            else{
+              reminder.notified = true;
+              const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+              console.log("reminder updated");
+            }
           });
-          console.log("sending notification");
-          //send push notification
-          webPush.sendNotification(subscription, payload).catch(error => console.error(error));
-
-          //set the reminder notifed to true and update the reminder db
-          reminder.notified = true;
-          const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
-          console.log("reminder updated");
         }
-
       }
-
     }
   }
   catch (error){
@@ -311,18 +299,17 @@ cron.schedule('* * * * * ', async () => {
 //incrementing any reminders that have a repeat frequency
 //deleting old reminders that are no longer in use
 async function cleanReminders(user_id){
+  //get all the uer's reminders
   const result = await client.query(`select details from reminders where user_id = ${user_id}`);
+  const reminders = result.rows;
   //the unix time right now
   const now = moment.utc().format("X");
-
-  const reminders = result.rows;
-
-  for(let i = 0; i < reminders.length; i++){//loop through all returned reminders
-
+  //loop through all returned reminders
+  for(let i = 0; i < reminders.length; i++){
+    //get the reminders timestamp, repeat, and id
     const reminderTime = reminders[i].details.timeStamp;
     const reminderRepeat =  reminders[i].details.repeat;
     const reminder_id = reminders[i].details.reminder_id;
-
     //if the reminder has already happened but has a repeat requency
     if(reminderTime <= now && reminderRepeat !== "Never"){
       //increment the timestamp, date, and weekday by the repeat frequency and update the reminder in the db
@@ -339,6 +326,7 @@ async function cleanReminders(user_id){
         offset: reminders[i].details.offset,
         notified: false
       }
+      //update the reminder details with the new time
       const result = await client.query(`update reminders set details = '${JSON.stringify(updated).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
     }
     //otherwise if the reminder is in the past and does not repeat
@@ -346,7 +334,5 @@ async function cleanReminders(user_id){
       //delete the reminder from the db
       const result = await client.query(`delete from reminders where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder_id}'`);
     }
-
   }
-  console.log("reminders cleaned");
 }

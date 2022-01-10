@@ -68,8 +68,8 @@ var database = {
     },
     body:JSON.stringify({"user_id":database.user_id})
   });
-  //if the response contained an error throw a new error
-  if(!response.ok){throw "Was not able to retrieve reminders at the time";}
+  //if the response was not ok throw an error
+  if(!response.ok){var error = await response.json(); throw error.message;}
   //parse the reminder data and return it
   var data = await response.json();
   return data;
@@ -85,7 +85,7 @@ var database = {
     },
     body:JSON.stringify(save)
   });
-  if(!response.ok){ throw "New reminder could not be saved at thie time";}
+  if(!response.ok){var error = await response.json(); throw error.message;}
  },
  //deletes a reminder from the db
  deleteReminder: async (reminderID)=>{
@@ -98,7 +98,7 @@ var database = {
     },
     body:JSON.stringify(remove)
   });
-  if(!response.ok){ throw "Reminder could not be deleted at this time";}
+  if(!response.ok){var error = await response.json(); throw error.message;}
  },
  //adds a new user to the users db
  addNewUser: async() => {
@@ -111,9 +111,9 @@ var database = {
       },
       body:JSON.stringify(save)
     });
-    if(!response.ok){throw "New user profile could not be created. Reload and try again";}
+    if(!response.ok){var error = await response.json(); throw error.message;}
   },
- //saves the user and the user's push subcription to the db
+ //saves a users push subscription to the user db
  saveUserSubscription: async(subscription) => {
      //get the user_id and the push subscription
      var save = {"user_id":database.user_id,"sub":subscription};
@@ -124,8 +124,23 @@ var database = {
       },
       body:JSON.stringify(save)
     });
-    if(!response.ok){throw "Could not save push subscription at this time";}
+    if(!response.ok){var error = await response.json(); throw error.message;}
   },
+  //returns the user's push subscription saved in the db
+  checkUserSubscription: async() => {
+      //get the user_id
+      var user = {"user_id":database.user_id};
+      var response = await fetch("/checkUserSub", {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json'
+       },
+       body:JSON.stringify(user)
+     });
+     if(!response.ok){var error = await response.json(); throw error.message;}
+     var data = await response.json();
+     return data;
+   },
   //saves the user's phone number to the users db
   saveUserPhoneNumber: async(phoneNumber) => {
       //get the user_id and the phone number
@@ -137,7 +152,7 @@ var database = {
        },
        body:JSON.stringify(save)
      });
-     if(!response.ok){throw "Could not save phone number at this time";}
+     if(!response.ok){var error = await response.json(); throw error.message;}
    },
    //returns a boolean of whether or not the user has set their phone number
    checkUserPhoneNumber: async() => {
@@ -149,7 +164,7 @@ var database = {
         },
         body:JSON.stringify(send)
       });
-      if(!response.ok){throw "Was not able to retrieve phone number at this time";}
+      if(!response.ok){var error = await response.json(); throw error.message;}
       var data = await response.json();
       return data;
     },
@@ -163,7 +178,7 @@ var database = {
          },
          body:JSON.stringify(send)
        });
-       if(!response.ok){throw "Could not send sms verification at this time";}
+       if(!response.ok){var error = await response.json(); throw error.message;}
      },
      //check if an sms verification is correct
      //if it is correct it will return the user's id
@@ -176,7 +191,7 @@ var database = {
           },
           body:JSON.stringify(send)
         });
-        if(!response.ok){throw "Was not able to verify sms at this time";}
+        if(!response.ok){var error = await response.json(); throw error.message;}
         var data = await response.json();
         return data.user_id;
       }

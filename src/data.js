@@ -48,7 +48,6 @@ var events = {
     //how many px the screen must be dragged before the refresh is activated
     var buffer = screen.height * .25;
 
-
     appScreen.addEventListener('touchstart', (e)=>{
       //set the startY
       startY = e.touches[0].pageY;
@@ -69,7 +68,6 @@ var events = {
 
       //if the container is at the top of its scroll and the user is swiping down
       if (appScreen.scrollTop === 0 && y > startY) {
-
 
         appScreen.style.overflowY = "clip";
         //set the starting top Y if it has not already been set
@@ -125,7 +123,6 @@ var reminders = {
     }
     //sort the arrays based on timestamp in acending order
     newAll.sort((a,b) => a.timeStamp - b.timeStamp);
-
 
     //update the existing array with the new reminders
     reminders.all = newAll;
@@ -195,36 +192,6 @@ var worker = {
     }
     else{
       console.log("Service Workers not supported");
-    }
-  },
-  //requests notification permissions
-  requestPermissions: async () =>{
-    if('PushManager' in window){
-      var result = await Notification.requestPermission();
-      return result;
-    }
-    else{
-      console.log("Push not supported");
-      return "default";
-    }
-  },
-  //subscribes the user to push
-  subscribeUser: async (permission) =>{
-    //check if there is an active push subscription
-    var subbed =  await worker.swRegistration.pushManager.getSubscription();
-    //if there is no push subscription and notification permissions have been granted
-    if(!subbed && permission == "granted"){
-      //convert the public key
-      var publicKey = urlBase64ToUint8Array("BKd7x3X7jqttW_W2eFJPJQ9IrLlatDywpZffn4wZp8Pnuq8pOj9lWV5vxjm0d2XASC_3b-15G4ChcuB3bai9P-s");
-      //subscribe the user to push notifications
-      var subscription = await worker.swRegistration.pushManager.subscribe({userVisibleOnly: true,applicationServerKey: publicKey});
-      //save the subscription to the db
-      console.log("User subscribed to push notifications");
-
-      return subscription;
-    }
-    else{
-      throw "User is either already subbed to push or did not grant notification permissions";
     }
   }
 }
