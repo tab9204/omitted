@@ -1,6 +1,6 @@
 //importScripts('./libraries/pouchdb-7.2.1.js');
 
-var cacheName = 'offlineCache-v17';
+var cacheName = 'offlineCache-v18';
 
 var contentToCache = [
   './manifest.json',
@@ -18,7 +18,8 @@ var contentToCache = [
   './libraries/flatpickr.js',
   './libraries/mithril.min.js',
   './libraries/moment.js',
-  './libraries/pouchdb-7.2.1.js'
+  './libraries/pouchdb-7.2.1.js',
+  './libraries/pushy.min.js'
 ];
 
 
