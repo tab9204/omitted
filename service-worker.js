@@ -1,6 +1,6 @@
 //importScripts('./libraries/pouchdb-7.2.1.js');
 
-var cacheName = 'offlineCache-v18';
+var cacheName = 'offlineCache-v19';
 
 var contentToCache = [
   './manifest.json',
@@ -75,6 +75,7 @@ self.addEventListener('push', function (event) {
     var options = {
         body: body,
         icon: image,
+        iamge: image,
         badge: image,
     };
     // Wait until notification is shown
