@@ -260,7 +260,7 @@ cron.schedule('* * * * * ', async () => {
           //the user push sub is not null
         if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified && subscription !== null){
           //push sub details
-          const payload = {title: 'Reminder coming up at ' + moment.unix(reminder.timeStamp).format("LT"),body: reminder.title};
+          const payload = {title: 'You have a reminder coming up!',body: reminder.title};
           console.log("sending notification to: " + subscription);
           //send push notification with pushy
           pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
