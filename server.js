@@ -226,6 +226,25 @@ app.post('/checkVerification', async (req,res) => {
   }
 });
 
+//updates a the notified attribute of a reminder to be true
+// is only set to true after the client confirms the push notification has been shown
+app.post('/updateNotified', async (req,res) => {
+  try{
+    //parse the reminder data
+    var reminder = JSON.parse(req.body.reminder);
+    //set notified to true
+    reminder.notified = true;
+    //update the reminder in the db
+    const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${req.body.user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+    console.log("Reminder notified is now true");
+    res.send("Reminder notified is now true");
+  }
+  catch (error){
+    console.log(error);
+    res.status("500").send({message: 'Failed to update reminder notified'});
+  }
+});
+
 
 //runs checks on the remidners every 1 minute
 cron.schedule('* * * * * ', async () => {
@@ -245,8 +264,8 @@ cron.schedule('* * * * * ', async () => {
       console.log("Reminders cleaned");
       //the current user push notification subscription
       const subscription = allUsers[i].sub == null ? null : [allUsers[i].sub];
-      //push sub options, currently empty
-      const options = {};
+      //push sub options
+      const options = {time_to_live:30};
       //get all remindres for the current user
       const reminders = await client.query(`select details from reminders where user_id = ${user_id}`);
       const allReminders = reminders.rows;
@@ -260,31 +279,19 @@ cron.schedule('* * * * * ', async () => {
           //the user push sub is not null
         if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified && subscription !== null){
           //push sub details
-          const payload = {title: 'You have a reminder coming up!',body: reminder.title};
+          const payload = {title: 'You have a reminder coming up!',body: reminder.title, user_id: user_id, reminder:reminder};
           console.log("sending notification to: " + subscription);
           //send push notification with pushy
           pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
             if (err) {return console.log("Error sending push notification: " + err);}
-            //if there was no error sending the push notification
-            else{
-              //set the reminder notifed to true and update the reminder db
-              reminder.notified = true;
-              const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
-              console.log("reminder updated");
-            }
           });
         }
         //send a push notification if the reminder is an all day reminder, is coming up in less then 24 hours, and the user push sub is not null
         else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified && subscription !== null){
-          const payload = {title: "Don't forget this today!",body: reminder.title};
+          const payload = {title: 'You have a reminder coming up!',body: reminder.title, user_id: user_id, reminder:reminder};
           console.log("sending notification to: " + subscription);
           pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
             if (err) {return console.log("Error sending push notification: " + err);}
-            else{
-              reminder.notified = true;
-              const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
-              console.log("reminder updated");
-            }
           });
         }
       }

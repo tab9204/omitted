@@ -1,6 +1,6 @@
-//importScripts('./libraries/pouchdb-7.2.1.js');
+//importScripts('./libraries/pushy.min.js');
 
-var cacheName = 'offlineCache-v19';
+var cacheName = 'offlineCache-v20';
 
 var contentToCache = [
   './manifest.json',
@@ -64,13 +64,16 @@ self.addEventListener('push', (event) => {
 
 //push notification event
 self.addEventListener('push', function (event) {
-    // Extract payload as JSON object, default to empty object
+    // Extract payload as JSON object
     var data = event.data.json();
-    //image URL
+    //notification image URL
     var image = '.\assets\splash-59.png';
-    // Notification title and body
+    // Notification tex details
     var title = data.title;
     var body = data.body;
+    //the user id and reminder details of the reminder the notification is showing
+    var user_id = data.user_id;
+    var reminder = data.reminder;
     // Notification options
     var options = {
         body: body,
@@ -79,9 +82,24 @@ self.addEventListener('push', function (event) {
         badge: image,
     };
     // Wait until notification is shown
-    event.waitUntil(self.registration.showNotification(title, options));
+    event.waitUntil(showNotification(title,options,user_id,reminder));
 });
 
+//shows a notification and sends a request to the server to update the reminder notified value
+async function showNotification(title,options,user_id,reminder){
+  //show the notification to the user
+  var notification = await self.registration.showNotification(title, options);
+  //after the notification has been shown send a request to the server to update the notified value
+  var response = await fetch("/updateNotified", {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json'
+   },
+   body:JSON.stringify({"user_id":user_id,"reminder":reminder})
+ });
+ //if the response was not ok throw an error
+ if(!response.ok){var error = await response.json(); throw error.message;}
+}
 
 /*
 //updates a user push subscription with a new one when the old one expires
