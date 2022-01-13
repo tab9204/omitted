@@ -1,4 +1,4 @@
-//importScripts('./libraries/pushy.min.js');
+importScripts('./libraries/moment.js');
 
 var cacheName = 'offlineCache-v20';
 
@@ -63,14 +63,15 @@ self.addEventListener('push', (event) => {
 });*/
 
 //push notification event
-self.addEventListener('push', function (event) {
+self.addEventListener('push', async function (event) {
     // Extract payload as JSON object
-    var data = event.data.json();
+    var data = await event.data.json();
+    var reminder =  JSON.parse(data.reminder);
     //notification image URL
     var image = '.\assets\splash-59.png';
     // Notification tex details
     var title = data.title;
-    var body = data.body;
+    var body = reminder.allDay ? data.body :  moment.unix(reminder.timeStamp).format("LT") + ": " + data.body;
     //the user id and reminder details of the reminder the notification is showing
     var user_id = data.user_id;
     var reminder = data.reminder;

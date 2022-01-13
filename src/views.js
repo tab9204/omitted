@@ -21,7 +21,7 @@ var header = {
           m.route.set('/phone');
         }
       }}),
-      m("div", moment().format("ddd, MMM DD YYYY")),
+      m("div", moment().format("ddd MMM DD, YYYY")),
       m("img.add",{src:"./assets/plus.png", alt: "Add reminder", onclick: async (e) => {
         //add a short vibration when the button is pressed for feedback
         window.navigator.vibrate(5);
@@ -88,7 +88,7 @@ var reminder = {
       m(".rightSide",[
         m(".title",vnode.attrs.reminder.title),
         m(".date",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(parseInt(vnode.attrs.reminder.offset)).format("MM/DD/YYYY") : moment.unix(vnode.attrs.reminder.timeStamp).format("MM/DD/YYYY")),
-        m(".time",vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
+        m(".time",{class: vnode.attrs.reminder.allDay ? "hidden": ""},vnode.attrs.reminder.allDay ? "All day" : moment.unix(vnode.attrs.reminder.timeStamp).format("LT")),
         m(".repeat",vnode.attrs.reminder.repeat),
       ])
     ])
@@ -203,9 +203,17 @@ var homeScreen = {
       m(header),
       m(".pageContent",[
         m(".pageSection", [
-        //  m(".sectionHeader", moment().format("ddd, MMM DD YYYY")),
+          m(".sectionHeader", "Today"),
           m(".reminderList",[
-            reminders.all.map((current, i) => {//loop through and display reminders sorted for today
+            reminders.today.map((current, i) => {//loop through and display reminders sorted for today
+              return m(reminder, {reminder: current, key:current.reminder_id, index: i})
+            })
+          ])
+        ]),
+        m(".pageSection", [
+          m(".sectionHeader", "Upcoming"),
+          m(".reminderList",[
+            reminders.upcoming.map((current, i) => {//loop through and display reminders sorted for upcoming
               return m(reminder, {reminder: current, key:current.reminder_id, index: i})
             })
           ])
@@ -415,7 +423,7 @@ var phoneScreen = {
           ])
         ]),
         m(".pageSection", [
-          m(".explaination", "If you would like the option to recover your data if it is deleted, insert your phone number below."),
+          m(".explaination", "Add your phone number below if you want to recieve SMS alerts for your reminders. You can also recover your reminders have they are deleted."),
         ]),
         m(".pageSection", [
           m(phoneInput)

@@ -105,27 +105,37 @@ var events = {
 
 //data and functionality for related to reminders
 var reminders = {
-  //all reminders for the user
-  all:[],
-  //gets all reminders and then sorts them from soonest to latest
+  //reminder arrays
+  today:[],
+  upcoming:[],
+  //gets all reminders and then sorts them into today and upcoming reminders
   sort: async ()=>{
-
+    //get all reminders
     var all = await database.getAllReminders();
-
-    //stores the new reminders
-    var newAll = [];
-
+    //arrays to store the new reminders from the db
+    var newToday = [];
+    var newUpcoming = [];
+    //get the date in local time
+    var todayDate = moment().format("MM/DD/YYYY");
     //loop through all reminders
-    for(var i = 0; i < all.length; i++){;
-      //add the reminder to the array
-      newAll.push(all[i].details);
-
+    for(var i = 0; i < all.length; i++){
+      //get the reminder's date in MM/DD/YYYY format
+      var reminderDate = all[i].details.allDay ? moment.unix(all[i].details.timeStamp).utcOffset(parseInt(all[i].details.offset)).format("MM/DD/YYYY") : moment.unix(all[i].details.timeStamp).format("MM/DD/YYYY");
+      //if the reminder's date and today's date is the same
+      if(reminderDate == todayDate){
+        newToday.push(all[i].details);
+      }
+      //if the reminder's date is after today's date
+      else if(reminderDate > todayDate){
+        newUpcoming.push(all[i].details);
+      }
     }
     //sort the arrays based on timestamp in acending order
-    newAll.sort((a,b) => a.timeStamp - b.timeStamp);
-
+    newToday.sort((a,b) => a.timeStamp - b.timeStamp);
+    newUpcoming.sort((a,b) => a.timeStamp - b.timeStamp);
     //update the existing array with the new reminders
-    reminders.all = newAll;
+    reminders.today = newToday;
+    reminders.upcoming = newUpcoming;
   },
   //validates reminder inputs and returns all data needed for reminder
   gatherReminderData: () =>{

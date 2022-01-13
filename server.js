@@ -259,11 +259,13 @@ cron.schedule('* * * * * ', async () => {
     for(let i = 0; i < allUsers.length; i++){
       //the current user id
       const user_id = allUsers[i].user_id;
+      //the current user phone number
+      const phone = allUsers[i].phone == null ? null : allUsers[i].phone;
+      //the current user push notification subscription
+      const subscription = allUsers[i].sub == null ? null : [allUsers[i].sub];
       //clean the user's reminders
       await cleanReminders(user_id);
       console.log("Reminders cleaned");
-      //the current user push notification subscription
-      const subscription = allUsers[i].sub == null ? null : [allUsers[i].sub];
       //push sub options
       const options = {time_to_live:30};
       //get all remindres for the current user
@@ -274,17 +276,18 @@ cron.schedule('* * * * * ', async () => {
         const reminder = allReminders[x].details;
         //send a push notification if the reminder is:
           //not an all day reminder
-          //coming up in less then 30 minutes but has not already happened
+          //coming up in less then 60 minutes but has not already happened
           //has not already had a notication
-          //the user push sub is not null
-        if((reminder.timeStamp - now <= 1800 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified && subscription !== null){
-          //push sub details
-          const payload = {title: 'You have a reminder coming up!',body: reminder.title, user_id: user_id, reminder:reminder};
+          //the user phone is not null
+        if((reminder.timeStamp - now <= 3600 && reminder.timeStamp - now >= 0 ) && !reminder.allDay && !reminder.notified && phone !== null){
           console.log("sending notification to: " + subscription);
-          //send push notification with pushy
-          pushyAPI.sendPushNotification(payload, subscription, options, async (err, id)=>{
-            if (err) {return console.log("Error sending push notification: " + err);}
-          });
+          //since these reminders are time sensative the notification NEEDS to be sent reliably
+          //use twilio to send the reminder notification as an sms if the user has input a phone number
+          twilioClient.messages.create({
+             body: 'Coming up soon: ' + reminder.title,
+             from: '+19847894515',
+             to: phone
+           });
         }
         //send a push notification if the reminder is an all day reminder, is coming up in less then 24 hours, and the user push sub is not null
         else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified && subscription !== null){
