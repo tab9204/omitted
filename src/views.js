@@ -423,7 +423,7 @@ var phoneScreen = {
           ])
         ]),
         m(".pageSection", [
-          m(".explaination", "Add your phone number below if you want to recieve SMS alerts for your reminders. You can also recover your reminders have they are deleted."),
+          m(".explaination", "Add your phone number below if you want to recieve SMS alerts for your reminders. You can also recover your reminders if they are deleted."),
         ]),
         m(".pageSection", [
           m(phoneInput)
