@@ -288,6 +288,11 @@ cron.schedule('* * * * * ', async () => {
              from: '+19847894515',
              to: phone
            });
+           //set notified to true
+           reminder.notified = true;
+           //update the reminder in the db
+           const update = await client.query(`update reminders set details = '${JSON.stringify(reminder).replace(/[\/\(\)\']/g, "''")}' where user_id = ${user_id} and details ->> 'reminder_id' = '${reminder.reminder_id}'`);
+           console.log("Reminder notified is now true");
         }
         //send a push notification if the reminder is an all day reminder, is coming up in less then 24 hours, and the user push sub is not null
         else if(reminder.allDay && (reminder.timeStamp - now <= 86399 && reminder.timeStamp - now >= 0 )  && !reminder.notified && subscription !== null){
