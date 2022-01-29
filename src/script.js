@@ -1,6 +1,4 @@
 import {homeScreen,addScreen,loadingScreen,recoveryScreen,phoneScreen} from './views.js';
-import {worker,reminders,events} from './data.js';
-import {pouchDB} from './database.js';
 import "../libraries/mithril.min.js";
 
 window.onload = async () =>{

@@ -1,4 +1,4 @@
-import {events} from './data.js';
+import {home} from './data.js';
 //onSwipe => function to run on swipe
 class Swiper {
   constructor(onSwipe) {
@@ -22,7 +22,7 @@ class Swiper {
       return;
     }
     //if a refresh swipe is in progress exit
-    if(events.refreshSwiping){
+    if(home.refreshSwiping){
       return;
     }
     //if the reminder is currently animating back into place exit
