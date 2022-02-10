@@ -6,13 +6,13 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: c
 
 #appRoot{height: 100%; position: relative;}
   .contentView{position: absolute; width: 100%;height: 100%; display: flex; flex-direction: column; flex-shrink: 0; background: #E8EAEE;}
-    .header{font-size: 1.5em;padding: 10px 8px 10px 8px; background: #4D77BE; display: flex; justify-content: space-between; min-height: 30px;}
+    .header{font-size: 1.5em;padding: 10px; background: #4D77BE; display: flex; justify-content: space-between; min-height: 30px;}
       .header img{align-self: center;}
       .miniLoading{position: absolute; left: 50%; transform: translateX(-50%); border: .5px solid #d6d6d6; z-index: 2; background: white; border-radius: 40px; width: 40px; top: -45px;}
       .backBtn{position: absolute; width: 45px;}
       .genericBtn {background: #4D77BE; padding: 9px; margin: 0px auto; border: 1px solid black;}
       .header .savedNavIcon{position: absolute; left:5px;}
-      .recovery{width: 30px; height: 30px;}
+      .recovery{width: 32px; height: 32px;}
       #popup{background: #f06e6e; width: fit-content; min-width: 100px; padding: 7px; text-align: center; border: 1px solid black; border-radius: 4px; position: absolute; top: 50%; left:  50%; transform: translate(-50%,-50%); z-index: 2; pointer-events: none; opacity: 0; white-space: pre-line;}
     .pageContent{max-width: 480px; height: 100%; position: relative; left: 50%; transform: translate(-50%); display: flex;flex-direction: column; overflow-y: scroll; background: white; top:0px;}
       .pageContent .pageSection{margin:  10px 10px;}
@@ -36,7 +36,8 @@ input:focus{outline: none;}
   .selected{background: #4D77BE; color: white;}
 
 .navigation{display: flex; justify-content: space-between;}
-  .exit,.add{width: 30px; height: 30px;}
+  .exit,.add{width: 32px; height: 32px;}
+
 
 .allDay{display: flex; justify-content: space-between; font-size:1.3em;}
 
@@ -105,16 +106,28 @@ input:checked + .slider:before {-webkit-transform: translateX(26px); -ms-transfo
 }
 
 
-.navIn{animation: navIn 0.1s; animation-fill-mode: forwards;}
-@keyframes navIn {
-  from {transform: scale(0);}
-  to {transform: scale(1);}
+.navInLeft{animation: navInLeft 0.1s; animation-fill-mode: forwards;}
+@keyframes navInLeft {
+  from {transform: translateX(-100%);}
+  to {transform: translateX(0%);}
 }
 
-.navOut{animation: navOut 0.1s; animation-fill-mode: forwards;}
-@keyframes navOut {
-  from {opacity: 1;}
-  to { opacity: 0;}
+.navOutLeft{animation: navOutLeft 0.1s; animation-fill-mode: forwards;}
+@keyframes navOutLeft {
+  from {transform: translateX(0%);}
+  to {transform: translateX(-100%);}
+}
+
+.navInRight{animation: navInRight 0.1s; animation-fill-mode: forwards;}
+@keyframes navInRight {
+  from {transform: translateX(100%);}
+  to {transform: translateX(0%);}
+}
+
+.navOutRight{animation: navOutRight 0.1s; animation-fill-mode: forwards;}
+@keyframes navOutRight {
+  from {transform: translateX(0%);}
+  to {transform: translateX(100%);}
 }
 
 .fadeInFadeOut{animation: fadeInFadeOut 4s; animation-fill-mode: forwards; animation-timing-function: ease-out;}

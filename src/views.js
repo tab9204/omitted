@@ -11,7 +11,7 @@ var header_component = {
       m("img.miniLoading", {src:"./assets/loading.gif", alt: "Loading"}),
       m("img.recovery", {src:"./assets/splash-192.png", alt: "Recover reminders", onclick:()=>{header.recoveryBtnClick()}}),
       m("div", moment().format("ddd MMM DD, YYYY")),
-      m("img.add",{src:"./assets/plus.png", alt: "Add reminder", onclick:()=>{header.addBtnClick()}})
+      m("img.add",{ src: "./assets/plus.png", alt: "Add reminder", onclick:()=>{header.addBtnClick()}})
     ])
   }
 }
@@ -140,7 +140,7 @@ var addScreen = {//add new reminder screen
   onbeforeremove:add.beforeRemove,
   oncreate:add.created,
   view:(vnode)=>{
-    return m("addScreen.contentView.navIn",[
+    return m("addScreen.contentView.navInRight",[
       m(".pageContent",[
         m(".pageSection", [//navigation section
           m(".navigation",[
@@ -180,7 +180,7 @@ var addScreen = {//add new reminder screen
 var phoneScreen = {
   onbeforeremove:phone.beforeRemove,
   view: (vnode)=>{
-    return m("phoneScreen.contentView.navIn",[
+    return m("phoneScreen.contentView.navInLeft",[
       m(".pageContent",[
         m(".pageSection", [
           m(".navigation",[
@@ -209,7 +209,7 @@ var phoneScreen = {
 var recoveryScreen = {
   onbeforeremove: recovery.beforeRemove,
   view: (vnode)=>{
-    return m("recoveryScreen.contentView.navIn",[
+    return m("recoveryScreen.contentView.navInLeft",[
       m(".pageContent",[
         m(".pageSection", [
           m(".navigation",[

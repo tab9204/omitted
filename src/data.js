@@ -440,7 +440,7 @@ var loading = {
 var add = {
   beforeRemove: (vnode) =>{
     //add the navigation out animation
-    vnode.dom.classList.add("navOut");
+    vnode.dom.classList.add("navOutRight");
     //defer removing the view until after the navDown animation finishes
     return new Promise((resolve)=> {
         vnode.dom.addEventListener("animationend", resolve);
@@ -491,7 +491,7 @@ var add = {
 
 var phone = {
   beforeRemove: (vnode)=>{
-    vnode.dom.classList.add("navOut");
+    vnode.dom.classList.add("navOutLeft");
     //defer removing the view until after the navDown animation finishes
     return new Promise(function(resolve) {
         vnode.dom.addEventListener("animationend", resolve)
@@ -530,7 +530,7 @@ var recovery = {
   savedPhoneNumber: null,
   phoneNumber: null,
   beforeRemove: (vnode)=>{
-    vnode.dom.classList.add("navOut");
+    vnode.dom.classList.add("navOutLeft");
     //defer removing the view until after the navDown animation finishes
     return new Promise(function(resolve) {
         vnode.dom.addEventListener("animationend", resolve)
