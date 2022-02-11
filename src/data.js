@@ -500,8 +500,9 @@ var phone = {
   exitClick: () =>{
     m.route.set('/home', {showPopup: false});
   },
-  addClick: ()=>{
+  addClick: (e)=>{
     try{
+      e.currentTarget.children[0].classList.add("pulse");
       //get the phone number digits from the input fields
       var areaCode = document.getElementById("areaCode").value;
       var centralOffice = document.getElementById("centralOffice").value;
@@ -521,8 +522,12 @@ var phone = {
       document.getElementById("popup").classList.add("fadeInFadeOut");
     }
   },
-  skipClick: ()=>{
+  skipClick: (e)=>{
+    e.currentTarget.children[0].classList.add("pulse");
     m.route.set('/recovery');
+  },
+  animationEnd: (e)=>{
+    e.target.classList.remove("pulse");
   }
 }
 
@@ -540,6 +545,7 @@ var recovery = {
     m.route.set('/home', {showPopup: false});
   },
   requestClick: async (e)=>{
+    e.currentTarget.children[0].classList.add("pulse");
     //disable this click event to prevent double clicks
     e.currentTarget.style.pointerEvents = "none";
     try{
@@ -569,6 +575,7 @@ var recovery = {
     e.target.style.pointerEvents = "auto";
   },
   confirmClick: async (e)=>{
+    e.currentTarget.children[0].classList.add("pulse");
     //disable this click event to prevent double clicks
     e.currentTarget.style.pointerEvents = "none";
     try{
@@ -587,6 +594,9 @@ var recovery = {
       document.getElementById("popup").classList.add("fadeInFadeOut");
     }
     e.target.style.pointerEvents = "auto";
+  },
+  animationEnd: (e)=>{
+    e.target.classList.remove("pulse");
   }
 }
 

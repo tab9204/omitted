@@ -195,8 +195,14 @@ var phoneScreen = {
         ]),
         m(".pageSection", [
           m(".btnContainer",[
-            m(".genericBtn.phoneBtn",{onclick: ()=>{phone.addClick()}}, "Add number"),
-            m(".genericBtn.phoneBtn",{onclick: ()=>{phone.skipClick()}},"Skip this")
+            m(".genericBtn.phoneBtn",{onclick: (e)=>{phone.addClick(e)}}, [
+              m(".phoneBtnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
+              m(".phoneBtnText","Add number")
+            ]),
+            m(".genericBtn.phoneBtn",{onclick: (e)=>{phone.skipClick(e)}}, [
+              m(".phoneBtnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
+              m(".phoneBtnText","Skip this")
+            ]),
           ]),
         ]),
         m(popup_component, {text: popup.text})
@@ -224,7 +230,10 @@ var recoveryScreen = {
             m(phoneInput_component)
           ]),
           m(".pageSection",[
-            m(".recoverBtn.genericBtn",{onclick:async (e)=>{recovery.requestClick(e)}},"Request verification code")
+            m(".genericBtn.recoverBtn",{onclick: (e)=>{recovery.requestClick(e)}}, [
+              m(".recoverBtnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
+              m(".recoverBtnText","Request verification code")
+            ])
           ])
         ]),
         m("#partTwo.hidden", [
@@ -235,7 +244,10 @@ var recoveryScreen = {
             m("input#codeInput",{type:"text", placeholder: "Code goes here"})
           ]),
           m(".pageSection",[
-            m(".recoverBtn.genericBtn",{onclick:async (e)=>{recovery.confirmClick(e)}},"Confirm verification code")
+            m(".genericBtn.recoverBtn",{onclick: (e)=>{recovery.confirmClick(e)}}, [
+              m(".recoverBtnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
+              m(".recoverBtnText","Confirm verification code")
+            ])
           ])
         ]),
         m(popup_component, {text: popup.text})
