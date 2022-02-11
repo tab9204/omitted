@@ -10,7 +10,7 @@ body{margin: 0px; font-family: 'Work Sans', sans-serif; overscroll-behavior-y: c
       .header img{align-self: center;}
       .miniLoading{position: absolute; left: 50%; transform: translateX(-50%); border: .5px solid #d6d6d6; z-index: 2; background: white; border-radius: 40px; width: 40px; top: -45px;}
       .backBtn{position: absolute; width: 45px;}
-      .genericBtn {background: #4D77BE; padding: 12px; margin: 0px auto; border: 1px solid black;}
+      .genericBtn {background: #4D77BE; padding: 12px; margin: 0px auto; border: 1px solid black; color:white}
       .header .savedNavIcon{position: absolute; left:5px;}
       .recovery{width: 32px; height: 32px;}
       #popup{background: #f06e6e; width: fit-content; min-width: 100px; padding: 7px; text-align: center; border: 1px solid black; border-radius: 4px; position: absolute; top: 50%; left:  50%; transform: translate(-50%,-50%); z-index: 2; pointer-events: none; opacity: 0; white-space: pre-line;}
