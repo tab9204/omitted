@@ -196,11 +196,11 @@ var phoneScreen = {
         m(".pageSection", [
           m(".btnContainer",[
             m(".genericBtn.phoneBtn",{onclick: (e)=>{phone.addClick(e)}}, [
-              m(".phoneBtnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
+              m(".btnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
               m(".phoneBtnText","Add number")
             ]),
             m(".genericBtn.phoneBtn",{onclick: (e)=>{phone.skipClick(e)}}, [
-              m(".phoneBtnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
+              m(".btnHighlight",{onanimationend: (e)=>{phone.animationEnd(e)}},""),
               m(".phoneBtnText","Skip this")
             ]),
           ]),
@@ -231,7 +231,7 @@ var recoveryScreen = {
           ]),
           m(".pageSection",[
             m(".genericBtn.recoverBtn",{onclick: (e)=>{recovery.requestClick(e)}}, [
-              m(".recoverBtnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
+              m(".btnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
               m(".recoverBtnText","Request verification code")
             ])
           ])
@@ -245,7 +245,7 @@ var recoveryScreen = {
           ]),
           m(".pageSection",[
             m(".genericBtn.recoverBtn",{onclick: (e)=>{recovery.confirmClick(e)}}, [
-              m(".recoverBtnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
+              m(".btnHighlight",{onanimationend: (e)=>{recovery.animationEnd(e)}},""),
               m(".recoverBtnText","Confirm verification code")
             ])
           ])

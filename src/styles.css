@@ -66,7 +66,7 @@ recoveryScreen .explaination{text-align: center; font-size: 1.2em;}
 .uidInput{width:95%;}
 .recoverBtn{width: 200px; position: relative;}
 .recoverBtnText{font-size: 1em;}
-.recoverBtnHighlight{background-color: #e8eaed; width: 218px; height: 37px; display: block; position: absolute; top: 0px; left: 0px; opacity: .5; transform: scale(0)}
+.btnHighlight{background-color: #e8eaed; width: 100%; height: 100%; display: block; position: absolute; top: 0px; left: 0px; opacity: .5; transform: scale(0)}
 #codeInput{margin: 25px 0px; font-size: 1.2em; position: relative; left: 50%; transform: translateX(-50%); border: 1px solid black;}
 
 /*phone screen styles */
@@ -76,7 +76,6 @@ phoneScreen .explaination{text-align: center; font-size: 1.2em;}
 phoneScreen .btnContainer{display: flex;}
 phoneScreen .phoneBtn{width: 100px; text-align: center; position: relative;}
 phoneScreen .phoneBtnText{font-size: 1em;}
-phoneScreen .phoneBtnHighlight{background-color: #e8eaed; width: 118px; height: 37px; display: block; position: absolute; top: 0px; left: 0px; opacity: .5; transform: scale(0)}
 
 .phoneContainer{display: flex; justify-content: center;}
 .phoneContainer div, .phoneContainer input{font-size: 1.8em; align-self: baseline;}
