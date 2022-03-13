@@ -42,7 +42,7 @@ var reminders = {
       //get the reminder's date in MM/DD/YYYY format from its unix timestamp
       //all day reminders should use the utc offset so that the user's current timezone is ignored
       //all other reminders can use the user's current timezone for its formatted date
-      var reminderDate = all[i].details.allDay ? moment.unix(parseInt(all[i].details.timeStamp) + parseInt(all[i].details.offset)).format("MM/DD/YYYY") : moment.unix(all[i].details.timeStamp).format("MM/DD/YYYY");
+      var reminderDate = all[i].details.allDay ? moment.unix(parseInt(all[i].details.timeStamp)).utcOffset(parseInt(all[i].details.offset)).format("MM/DD/YYYY") : moment.unix(all[i].details.timeStamp).format("MM/DD/YYYY");
       //if the reminder is today add it to the today array
       if(reminderDate == todayDate){
         newToday.push(all[i].details);
