@@ -31,7 +31,7 @@ var reminder_component = {
       onanimationend:async (e)=>{reminders.animationEnd(e)}
     },[
       m(".leftSide",[
-        m(".weekday",moment.unix(vnode.attrs.reminder.timeStamp).format("ddd"))
+        m(".weekday",vnode.attrs.reminder.allDay ? moment.unix(vnode.attrs.reminder.timeStamp).utcOffset(parseInt(vnode.attrs.reminder.offset)).format("ddd") : moment.unix(vnode.attrs.reminder.timeStamp).format("ddd"))
       ]),
       m(".rightSide",[
         m(".title",vnode.attrs.reminder.title),
