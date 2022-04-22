@@ -48,7 +48,7 @@ var reminders = {
         newToday.push(all[i].details);
       }
       //if the reminder is after today add it to the upcoming array
-      else if(reminderDate > todayDate){
+      else if(moment(reminderDate).isAfter(todayDate)){
         newUpcoming.push(all[i].details);
       }
     }
